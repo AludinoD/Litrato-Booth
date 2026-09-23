@@ -57,5 +57,4 @@ layoutCards.forEach((card) => {
 // Next Step Click
 btnNextStep.addEventListener("click", () => {
   console.log("Selected Configuration:", photoboothState);
-  // We will hook this up to Stage 2 (Snap Pics) next!
 });
