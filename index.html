@@ -3,7 +3,151 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Litrato - Home</title>
+    <title>Litrato - Online Photobooth</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="style.css" />
   </head>
-  <body></body>
+  <body>
+    <div class="hero-viewport-wrapper">
+      <!-- Nav bar -->
+      <header class="navbar">
+        <div class="nav-container">
+          <a href="index.html" class="nav-logo">Litrato</a>
+        </div>
+      </header>
+
+      <!-- Hero Section -->
+      <section class="hero-section">
+        <div class="hero-content">
+          <h1 class="hero-title">Litrato</h1>
+          <p class="hero-subtitle">
+            Capture the moment with this online Photobooth!
+          </p>
+          <a href="photobooth.html" class="btn-primary">Start Photobooth</a>
+        </div>
+      </section>
+    </div>
+
+    <!-- Main Content Sections -->
+    <main class="page-wrapper">
+      <!-- How It Works Section -->
+      <section
+        class="how-it-works-section"
+        aria-labelledby="how-it-works-title"
+      >
+        <h2 id="how-it-works-title" class="section-title">How It Works</h2>
+
+        <div class="polaroid-container">
+          <!-- Step 1 -->
+          <article class="polaroid-card">
+            <div class="polaroid-screen">
+              <div class="screen-placeholder" aria-hidden="true"></div>
+            </div>
+            <div class="polaroid-text">
+              <h3 class="polaroid-heading">Choose a Layout</h3>
+              <p class="polaroid-desc">Choose the layout that you want</p>
+            </div>
+          </article>
+
+          <!-- Step 2 -->
+          <article class="polaroid-card">
+            <div class="polaroid-screen">
+              <div class="screen-placeholder" aria-hidden="true"></div>
+            </div>
+            <div class="polaroid-text">
+              <h3 class="polaroid-heading">Allow Camera Access</h3>
+              <p class="polaroid-desc">
+                Allow Camera Access so you can start taking pictures.
+              </p>
+            </div>
+          </article>
+
+          <!-- Step 3 -->
+          <article class="polaroid-card">
+            <div class="polaroid-screen">
+              <div class="screen-placeholder" aria-hidden="true"></div>
+            </div>
+            <div class="polaroid-text">
+              <h3 class="polaroid-heading">Take Pictures</h3>
+              <p class="polaroid-desc">You can now take your pictures</p>
+            </div>
+          </article>
+
+          <!-- Step 4 -->
+          <article class="polaroid-card">
+            <div class="polaroid-screen">
+              <div class="screen-placeholder" aria-hidden="true"></div>
+            </div>
+            <div class="polaroid-text">
+              <h3 class="polaroid-heading">Design &amp; Export</h3>
+              <p class="polaroid-desc">
+                Design your frame and save it as a png
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- Privacy Policy Section -->
+      <section class="privacy-section" aria-labelledby="privacy-title">
+        <div class="privacy-header">
+          <h2 id="privacy-title" class="section-title privacy-main-title">
+            Privacy Policy
+          </h2>
+          <p class="privacy-subtitle">
+            You're safe here. Your photos stay only on your Device
+          </p>
+        </div>
+
+        <div class="privacy-content">
+          <!-- Photo Privacy -->
+          <article class="privacy-block">
+            <h3 class="privacy-heading">Photo Privacy</h3>
+            <p class="privacy-lead">
+              <strong>Litrato does not store your photos anywhere.</strong> All
+              of the process stays here within your browser and does not leave
+              your device.
+            </p>
+            <p class="privacy-list-intro">
+              When you take or upload Photos in our site:
+            </p>
+            <ul class="privacy-list">
+              <li>All Photos are processed entirely within the browser.</li>
+              <li>No images go to any external servers</li>
+              <li>
+                Your photos remain in the browser's temporary memory until you
+                close the website.
+              </li>
+            </ul>
+          </article>
+
+          <hr class="privacy-divider" />
+
+          <!-- Device Processing -->
+          <article class="privacy-block">
+            <h3 class="privacy-heading">Device Processing</h3>
+            <p class="privacy-lead">
+              <strong>Litrato is a client-side website.</strong> This means that
+              this does not have a database that is linked anywhere. Everything
+              that happens here, stays here. All the code and processing runs
+              directly on your device, and all image processing happens locally
+              on your hardware.
+            </p>
+            <p class="privacy-body">
+              When you download your finished photo strip, it's generated
+              directly from your browser to your device's storage without any
+              server interaction.
+            </p>
+          </article>
+        </div>
+      </section>
+    </main>
+  </body>
 </html>
