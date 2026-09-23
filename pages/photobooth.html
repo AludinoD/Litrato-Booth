@@ -4,6 +4,139 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Litrato - Photobooth</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../styles/photobooth.css" />
   </head>
-  <body></body>
+  <body>
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+      <div class="nav-container">
+        <a href="../index.html" class="nav-logo">Litrato</a>
+      </div>
+    </header>
+
+    <main class="photobooth-wrapper">
+      <!-- Progress Tracker / Timeline -->
+      <nav class="timeline-container" aria-label="Photobooth Progress">
+        <ol class="timeline-list">
+          <li class="timeline-step active" id="step-node-1" aria-current="step">
+            <div class="step-circle">1</div>
+            <span class="step-label">Select Layout</span>
+          </li>
+          <li class="timeline-step" id="step-node-2">
+            <div class="step-circle">2</div>
+            <span class="step-label">Snap Pics</span>
+          </li>
+          <li class="timeline-step" id="step-node-3">
+            <div class="step-circle">3</div>
+            <span class="step-label">Design &amp; Export</span>
+          </li>
+        </ol>
+      </nav>
+
+      <!-- Stage 1 Container: Select Your Layout -->
+      <section
+        class="stage-section active"
+        id="stage-1"
+        aria-labelledby="stage-1-title"
+      >
+        <h1 id="stage-1-title" class="stage-heading">Select Your Layout</h1>
+
+        <!-- Orientation Switcher -->
+        <div
+          class="orientation-toggle"
+          role="group"
+          aria-label="Strip Orientation"
+        >
+          <button
+            type="button"
+            class="btn-toggle active"
+            data-orientation="vertical"
+          >
+            Vertical
+          </button>
+          <button
+            type="button"
+            class="btn-toggle"
+            data-orientation="horizontal"
+          >
+            Horizontal
+          </button>
+        </div>
+
+        <!-- Layout Cards Grid -->
+        <div class="layout-cards-grid" id="layout-options">
+          <!-- 2 Photos Card -->
+          <button
+            type="button"
+            class="layout-card"
+            data-photos="2"
+            aria-pressed="false"
+          >
+            <div class="layout-preview-frame vertical" id="preview-2">
+              <div class="placeholder-box"></div>
+              <div class="placeholder-box"></div>
+            </div>
+            <div class="layout-card-info">
+              <h2 class="layout-title">2 Photos</h2>
+              <span class="layout-tag">Duo Strip</span>
+            </div>
+          </button>
+
+          <!-- 3 Photos Card -->
+          <button
+            type="button"
+            class="layout-card"
+            data-photos="3"
+            aria-pressed="false"
+          >
+            <div class="layout-preview-frame vertical" id="preview-3">
+              <div class="placeholder-box"></div>
+              <div class="placeholder-box"></div>
+              <div class="placeholder-box"></div>
+            </div>
+            <div class="layout-card-info">
+              <h2 class="layout-title">3 Photos</h2>
+              <span class="layout-tag">Classic Strip</span>
+            </div>
+          </button>
+
+          <!-- 4 Photos Card -->
+          <button
+            type="button"
+            class="layout-card"
+            data-photos="4"
+            aria-pressed="false"
+          >
+            <div class="layout-preview-frame vertical" id="preview-4">
+              <div class="placeholder-box"></div>
+              <div class="placeholder-box"></div>
+              <div class="placeholder-box"></div>
+              <div class="placeholder-box"></div>
+            </div>
+            <div class="layout-card-info">
+              <h2 class="layout-title">4 Photos</h2>
+              <span class="layout-tag">Standard Strip</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- Action Button (Hidden until an option is picked) -->
+        <div class="action-footer">
+          <button type="button" id="btn-next-step" class="btn-primary" disabled>
+            Next Step
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <script src="../js/photobooth.js"></script>
+  </body>
 </html>
