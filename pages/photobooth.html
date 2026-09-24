@@ -128,12 +128,95 @@
           </button>
         </div>
 
-        <!-- Action Button (Hidden until an option is picked) -->
         <div class="action-footer">
-          <button type="button" id="btn-next-step" class="btn-primary" disabled>
+          <button
+            type="button"
+            id="btn-next-to-stage-2"
+            class="btn-primary"
+            disabled
+          >
             Next Step
           </button>
         </div>
+      </section>
+
+      <!-- Stage 2 Container: Snap Pics -->
+      <section
+        class="stage-section"
+        id="stage-2"
+        aria-labelledby="stage-2-title"
+        hidden
+      >
+        <div class="stage-top-bar">
+          <button type="button" id="btn-back-to-stage-1" class="btn-text-back">
+            &#8592; Back to Layouts
+          </button>
+        </div>
+
+        <div class="stage-header-wrap">
+          <h1 id="stage-2-title" class="stage-heading">Snap Pics</h1>
+          <p class="stage-subheading">Ensure to allow camera Access</p>
+        </div>
+
+        <div class="capture-layout">
+          <div class="camera-card">
+            <video id="webcam-feed" autoplay playsinline muted></video>
+            <div class="camera-flash" id="camera-flash"></div>
+
+            <div
+              class="countdown-overlay"
+              id="countdown-overlay"
+              aria-live="polite"
+            >
+              <span class="countdown-number" id="countdown-text">5</span>
+            </div>
+
+            <div class="camera-status" id="camera-status" hidden>
+              <p>Camera access required to snap live pictures.</p>
+            </div>
+          </div>
+
+          <div class="capture-controls">
+            <button type="button" id="btn-take-picture" class="btn-primary">
+              Take Picture
+            </button>
+
+            <label
+              for="file-upload-input"
+              class="btn-primary btn-secondary-style"
+            >
+              Upload Photo
+            </label>
+            <input type="file" id="file-upload-input" accept="image/*" hidden />
+
+            <button
+              type="button"
+              id="btn-retake-all"
+              class="btn-primary btn-secondary-style"
+              disabled
+            >
+              Retake All
+            </button>
+
+            <button
+              type="button"
+              id="btn-next-to-stage-3"
+              class="btn-primary btn-proceed"
+              style="display: none"
+            >
+              Next Step
+            </button>
+          </div>
+        </div>
+
+        <!-- Themed Taken Pictures Section -->
+        <div class="taken-pictures-section">
+          <h2 class="taken-title">Taken Pictures</h2>
+          <div class="thumbnails-grid" id="thumbnails-tray"></div>
+        </div>
+
+        <canvas id="photo-canvas" hidden></canvas>
+        <input type="file" id="slot-replace-input" accept="image/*" hidden />
       </section>
     </main>
 
