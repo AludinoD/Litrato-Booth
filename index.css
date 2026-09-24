@@ -71,11 +71,12 @@ a {
 }
 
 .nav-container {
-  max-width: 1040px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 0 var(--space-lg);
   display: flex;
   align-items: center;
+  justify-content: flex-start;
 }
 
 .nav-logo {
@@ -84,6 +85,14 @@ a {
   font-weight: 700;
   color: var(--text-main);
   letter-spacing: 0.5px;
+}
+
+.nav-logo {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.nav-logo:hover {
+  transform: rotate(-2deg) scale(1.04);
 }
 
 /* Hero Section */
@@ -109,6 +118,10 @@ a {
   margin-bottom: var(--space-sm);
 }
 
+.hero-title {
+  animation: heroFadeUp 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
 .hero-subtitle {
   font-size: clamp(1rem, 2.5vw, 1.25rem);
   font-weight: 400;
@@ -116,8 +129,15 @@ a {
   margin-bottom: var(--space-xl);
 }
 
+.hero-subtitle {
+  animation: heroFadeUp 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s both;
+}
+
+
 .btn-primary {
   display: inline-block;
+  position: relative;
+  overflow: hidden;
   background-color: var(--btn-bg);
   color: var(--text-main);
   font-family: var(--font-sans);
@@ -127,19 +147,46 @@ a {
   border-radius: var(--radius-sm);
   border: 1px solid rgba(0, 0, 0, 0.15);
   box-shadow: var(--shadow-btn);
-  transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background-color 0.2s ease,
+              box-shadow 0.2s ease;
   cursor: pointer;
+}
+
+.btn-primary::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -120%;
+  width: 50%;
+  height: 200%;
+  background: linear-gradient(
+    90deg, 
+    rgba(255, 255, 255, 0) 0%, 
+    rgba(255, 255, 255, 0.35) 50%, 
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(25deg);
+  pointer-events: none;
+}
+
+.btn-primary:hover::after {
+  animation: btnShine 0.75s ease-in-out forwards;
 }
 
 .btn-primary:hover {
   background-color: var(--btn-hover);
-  transform: translateY(-1px);
-  box-shadow: 0px 5px 0px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0px 6px 0px rgba(0, 0, 0, 0.2);
 }
 
 .btn-primary:active {
   transform: translateY(2px);
   box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.2);
+}
+
+.hero-section .btn-primary {
+  animation: heroFadeUp 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s both;
 }
 
 /* Layout Containers (Sections below Hero) */
@@ -171,27 +218,47 @@ a {
   border-radius: 14px;
   padding: 24px 20px;
   display: grid;
-  /* minmax(0, 1fr) ensures columns strictly respect the container and never overflow */
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .polaroid-card {
+  --card-tilt: 0deg;
   background-color: #FFFFFF;
   border-radius: 8px;
   padding: 12px 12px 18px 12px;
   display: flex;
   flex-direction: column;
   min-width: 0;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: var(--shadow-card);
+  opacity: 0;
+  transform: translateY(35px) scale(0.95);
+  transition: opacity 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
+              transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
+              box-shadow 0.35s ease;
+  will-change: transform, opacity;
+}
+
+/* Subtle Organic Tabletop Tilts */
+.polaroid-card:nth-child(1) { --card-tilt: -1.5deg; transition-delay: 0.1s; }
+.polaroid-card:nth-child(2) { --card-tilt: 1.5deg; transition-delay: 0.2s; }
+.polaroid-card:nth-child(3) { --card-tilt: -1deg; transition-delay: 0.3s; }
+.polaroid-card:nth-child(4) { --card-tilt: 2deg; transition-delay: 0.4s; }
+
+/* When section enters viewport */
+.polaroid-container.is-visible .polaroid-card {
+  opacity: 1;
+  transform: translateY(0) rotate(var(--card-tilt)) scale(1);
 }
 
 .polaroid-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2);
+  transform: rotate(0deg) translateY(-8px) scale(1.02) !important;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22);
+  z-index: 2;
+  transition-delay: 0s !important;
 }
+
 
 .polaroid-screen {
   width: 100%;
@@ -306,9 +373,38 @@ a {
   margin: var(--space-xs) 0;
 }
 
+/* Scroll Reveal Base Classes */
+.reveal-item {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s cubic-bezier(0.2, 0.8, 0.2, 1),
+              transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-item.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Animations */
+@keyframes heroFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes btnShine {
+  0% { left: -120%; }
+  100% { left: 140%; }
+}
+
 /* Responsive Breakpoints */
-
-
 @media (max-width: 1080px) {
   .polaroid-container {
     grid-template-columns: repeat(2, minmax(0, 1fr));
