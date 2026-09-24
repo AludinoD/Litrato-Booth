@@ -60,11 +60,12 @@ a {
 }
 
 .nav-container {
-  max-width: 1040px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 0 var(--space-lg);
   display: flex;
   align-items: center;
+  justify-content: flex-start;
 }
 
 .nav-logo {
@@ -73,6 +74,14 @@ a {
   font-weight: 700;
   color: var(--text-main);
   letter-spacing: 0.5px;
+}
+
+.nav-logo {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.nav-logo:hover {
+  transform: rotate(-2deg) scale(1.04);
 }
 
 /* Photobooth Main Layout */
