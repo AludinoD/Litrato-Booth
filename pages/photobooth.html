@@ -218,6 +218,119 @@
         <canvas id="photo-canvas" hidden></canvas>
         <input type="file" id="slot-replace-input" accept="image/*" hidden />
       </section>
+
+      <!-- Stage 3: Design & Export -->
+      <section id="stage-3" class="stage-section" hidden>
+        <div class="stage-top-bar">
+          <button type="button" id="btn-back-stage2" class="btn-text-back">
+            &#8592; Back to Camera
+          </button>
+        </div>
+
+        <div class="stage-header-wrap">
+          <h1 class="stage-heading">Design your frame</h1>
+        </div>
+
+        <div class="design-workspace">
+          <!-- Strip Frame Preview -->
+          <div class="frame-preview-area">
+            <div class="canvas-container" id="canvas-container">
+              <canvas id="export-canvas"></canvas>
+            </div>
+          </div>
+
+          <!-- Design Controls -->
+          <div class="design-controls">
+            <!-- Frame Color Swatches -->
+            <div class="control-group">
+              <h3 class="control-heading">Frame Color</h3>
+              <div class="color-palette" id="color-palette">
+                <button
+                  type="button"
+                  class="color-swatch active"
+                  data-color="#FFFFFF"
+                  style="background-color: #ffffff"
+                  title="Classic White"
+                ></button>
+                <button
+                  type="button"
+                  class="color-swatch"
+                  data-color="#231815"
+                  style="background-color: #231815"
+                  title="Vintage Black"
+                ></button>
+                <button
+                  type="button"
+                  class="color-swatch"
+                  data-color="#B87D4B"
+                  style="background-color: #b87d4b"
+                  title="Warm Ochre"
+                ></button>
+                <button
+                  type="button"
+                  class="color-swatch"
+                  data-color="#E86A58"
+                  style="background-color: #e86a58"
+                  title="Terracotta Red"
+                ></button>
+                <button
+                  type="button"
+                  class="color-swatch"
+                  data-color="#6A8E72"
+                  style="background-color: #6a8e72"
+                  title="Sage Green"
+                ></button>
+                <button
+                  type="button"
+                  class="color-swatch"
+                  data-color="#4B779A"
+                  style="background-color: #4b779a"
+                  title="Denim Blue"
+                ></button>
+
+                <label class="color-picker-label" title="Custom Color">
+                  <span>+</span>
+                  <input type="color" id="custom-color-input" value="#F8E9DA" />
+                </label>
+              </div>
+            </div>
+
+            <!-- Image Filters -->
+            <div class="control-group">
+              <h3 class="control-heading">Filters</h3>
+              <div class="filter-palette" id="filter-palette">
+                <button
+                  type="button"
+                  class="filter-btn active"
+                  data-filter="none"
+                >
+                  Normal
+                </button>
+                <button type="button" class="filter-btn" data-filter="bw">
+                  B&amp;W
+                </button>
+                <button type="button" class="filter-btn" data-filter="sepia">
+                  Sepia
+                </button>
+                <button type="button" class="filter-btn" data-filter="vivid">
+                  Vivid
+                </button>
+              </div>
+            </div>
+
+            <!-- Action Button -->
+            <div class="control-group action-group">
+              <button
+                type="button"
+                class="btn-primary btn-download"
+                id="btn-download"
+              >
+                Download Strip
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
 
     <script src="../js/photobooth.js"></script>
