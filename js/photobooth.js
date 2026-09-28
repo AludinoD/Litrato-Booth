@@ -5,6 +5,7 @@ const state = {
   photoCount: null,
   capturedPhotos: [],
   stream: null,
+  facingMode: "user",
   isCountingDown: false,
   activeRetakeIndex: null,
   design: {
@@ -46,6 +47,7 @@ const btnRetakeAll = document.getElementById("btn-retake-all");
 const btnNextToStage3 = document.getElementById("btn-next-to-stage-3");
 const photoCanvas = document.getElementById("photo-canvas");
 const slotReplaceInput = document.getElementById("slot-replace-input");
+const btnFlipCamera = document.getElementById("btn-flip-camera");
 
 // Stage 3 DOM
 const canvas = document.getElementById("export-canvas");
@@ -180,9 +182,20 @@ async function startCamera() {
 
   if (statusElement) statusElement.classList.remove("active");
 
+  if (state.facingMode === "user") {
+    video.classList.add("mirrored");
+  } else {
+    video.classList.remove("mirrored");
+  }
+
+  if (state.stream) {
+    state.stream.getTracks().forEach((track) => track.stop());
+  }
+
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
       video: {
+        facingMode: state.facingMode,
         width: { ideal: 1280 },
         height: { ideal: 720 }
       },
@@ -290,9 +303,14 @@ function snapFrame() {
   photoCanvas.width = videoElement.videoWidth || 640;
   photoCanvas.height = videoElement.videoHeight || 480;
 
-  context.translate(photoCanvas.width, 0);
-  context.scale(-1, 1);
+  context.save();
+
+  if (state.facingMode === "user") {
+    context.translate(photoCanvas.width, 0);
+    context.scale(-1, 1);
+  }
   context.drawImage(videoElement, 0, 0, photoCanvas.width, photoCanvas.height);
+  context.restore();
 
   return photoCanvas.toDataURL("image/png");
 }
@@ -372,6 +390,14 @@ btnTakePicture.addEventListener("click", async () => {
 
   btnTakePicture.disabled = false;
 });
+
+if (btnFlipCamera) {
+  btnFlipCamera.addEventListener("click", async () => {
+    // Toggle between selfie and environment camera
+    state.facingMode = state.facingMode === "user" ? "environment" : "user";
+    await startCamera();
+  });
+}
 
 async function retakeSpecificSlot(index) {
   if (state.isCountingDown) return;

@@ -384,6 +384,41 @@ a {
   border: 3px solid var(--accent-container);
 }
 
+/* Floating Camera Flip Button */
+.btn-flip-camera {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 15;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(35, 24, 21, 0.65);
+  backdrop-filter: blur(4px);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease;
+}
+
+.btn-flip-camera:hover {
+  background: rgba(35, 24, 21, 0.88);
+  transform: scale(1.08) rotate(180deg);
+}
+
+.btn-flip-camera:active {
+  transform: scale(0.95) rotate(180deg);
+}
+
+/* Mirror video */
+#webcam-feed.mirrored {
+  transform: scaleX(-1);
+}
+
 .camera-card video {
   position: absolute;
   top: 0;
