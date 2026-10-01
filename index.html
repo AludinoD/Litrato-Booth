@@ -168,6 +168,27 @@
       </section>
     </main>
 
+    <button
+      type="button"
+      id="btn-back-to-top"
+      class="btn-back-to-top"
+      aria-label="Back to top"
+      title="Back to top"
+    >
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.4"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="m18 15-6-6-6 6" />
+      </svg>
+    </button>
+
     <footer class="site-footer">
       <div class="footer-container">
         <div class="footer-watermark">Litrato</div>
@@ -177,33 +198,6 @@
       </div>
     </footer>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                entry.target.classList.add("is-visible");
-                observer.unobserve(entry.target);
-              }
-            });
-          },
-          {
-            threshold: 0.15,
-            rootMargin: "0px 0px -40px 0px",
-          },
-        );
-
-        // Target scroll elements
-        const elementsToReveal = document.querySelectorAll(
-          ".reveal-item, .polaroid-container, .privacy-header, .privacy-block",
-        );
-
-        elementsToReveal.forEach((el) => {
-          el.classList.add("reveal-item");
-          observer.observe(el);
-        });
-      });
-    </script>
+    <script src="../js/index.js"></script>
   </body>
 </html>
