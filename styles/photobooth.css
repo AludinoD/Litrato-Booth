@@ -563,6 +563,15 @@ a {
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
 }
 
+.btn-primary.btn-skipping {
+  background-color: #E86A58;
+  color: #FFFFFF;
+}
+
+.btn-primary.btn-skipping:hover {
+  background-color: #D65A48;
+}
+
 /* Organic casual tilts once a photo is captured */
 .thumbnail-slot.has-image.tilt-left {
   transform: rotate(-3deg);

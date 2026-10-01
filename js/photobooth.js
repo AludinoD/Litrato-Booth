@@ -274,6 +274,9 @@ function attachSlotActionListeners() {
   });
 }
 
+let skipCountdownResolve = null;
+let isCapturingProcess = false;
+
 function runCountdown(seconds = 5) {
   return new Promise((resolve) => {
     state.isCountingDown = true;
@@ -286,12 +289,20 @@ function runCountdown(seconds = 5) {
       if (current > 0) {
         countdownText.textContent = current;
       } else {
-        clearInterval(timer);
-        countdownOverlay.classList.remove("active");
-        state.isCountingDown = false;
-        resolve();
+        finish();
       }
     }, 1000);
+
+    function finish() {
+      if (!state.isCountingDown) return;
+      clearInterval(timer);
+      countdownOverlay.classList.remove("active");
+      state.isCountingDown = false;
+      skipCountdownResolve = null;
+      resolve();
+    }
+
+    skipCountdownResolve = finish;
   });
 }
 
@@ -371,24 +382,44 @@ function updateStage2Controls() {
 }
 
 btnTakePicture.addEventListener("click", async () => {
-  if (state.isCountingDown) return;
-
-  btnTakePicture.disabled = true;
-
-  let startIndex = state.capturedPhotos.findIndex((p) => p === null);
-  if (startIndex === -1) startIndex = 0;
-
-  for (let i = startIndex; i < state.photoCount; i++) {
-    await runCountdown(5);
-    const photoData = snapFrame();
-    placePhotoInSlot(i, photoData);
-
-    if (i < state.photoCount - 1) {
-      await new Promise((res) => setTimeout(res, 1000));
+  if (state.isCountingDown) {
+    if (typeof skipCountdownResolve === "function") {
+      skipCountdownResolve();
     }
+    return;
   }
 
-  btnTakePicture.disabled = false;
+  
+  if (isCapturingProcess) return;
+
+  
+  let startIndex = state.capturedPhotos.findIndex((p) => p === null);
+  if (startIndex === -1) {
+    startIndex = 0; 
+  }
+
+  isCapturingProcess = true;
+  btnTakePicture.textContent = "Skip Countdown";
+  btnTakePicture.classList.add("btn-skipping");
+
+  try {
+    for (let i = startIndex; i < state.photoCount; i++) {
+  
+      if (i >= state.photoCount) break;
+
+      await runCountdown(5);
+      const photoData = snapFrame();
+      placePhotoInSlot(i, photoData);
+
+      if (i < state.photoCount - 1) {
+        await new Promise((res) => setTimeout(res, 600));
+      }
+    }
+  } finally {
+    isCapturingProcess = false;
+    btnTakePicture.textContent = "Take Picture";
+    btnTakePicture.classList.remove("btn-skipping");
+  }
 });
 
 if (btnFlipCamera) {
@@ -400,12 +431,23 @@ if (btnFlipCamera) {
 }
 
 async function retakeSpecificSlot(index) {
-  if (state.isCountingDown) return;
+  if (state.isCountingDown || isCapturingProcess) return;
+
+  isCapturingProcess = true;
   state.activeRetakeIndex = index;
-  await runCountdown(5);
-  const photoData = snapFrame();
-  placePhotoInSlot(index, photoData);
-  state.activeRetakeIndex = null;
+  btnTakePicture.textContent = "Skip Countdown";
+  btnTakePicture.classList.add("btn-skipping");
+
+  try {
+    await runCountdown(5);
+    const photoData = snapFrame();
+    placePhotoInSlot(index, photoData);
+  } finally {
+    state.activeRetakeIndex = null;
+    isCapturingProcess = false;
+    btnTakePicture.textContent = "Take Picture";
+    btnTakePicture.classList.remove("btn-skipping");
+  }
 }
 
 btnRetakeAll.addEventListener("click", () => {
