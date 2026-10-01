@@ -499,13 +499,33 @@ a {
 .capture-controls {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
-  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 240px;
 }
 
 .capture-controls .btn-primary {
+  display: grid;
+  grid-template-columns: 1fr 20px;
+  align-items: center;
+  column-gap: 14px;
+  padding: 12px 20px;
   width: 100%;
-  text-align: center;
+  text-align: left;
+}
+
+.capture-controls .btn-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-left: auto;
+}
+
+.capture-controls .btn-text {
+  white-space: nowrap;
+  text-align: left;
 }
 
 .btn-secondary-style {
@@ -709,6 +729,51 @@ a {
   box-shadow: var(--shadow-btn);
   transition: all 0.25s ease;
   cursor: pointer;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+
+.btn-primary * {
+  pointer-events: none;
+}
+
+
+.btn-icon-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.btn-icon-wrapper svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+
+.btn-icon {
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Secondary Button Palette */
+.btn-secondary-style {
+  background-color: #E2D2C3;
+  color: var(--text-main);
+}
+
+.btn-secondary-style:hover {
+  background-color: #D6C2B0;
 }
 
 .btn-primary:hover:not(:disabled) {

@@ -373,9 +373,8 @@ function updateStage2Controls() {
 
   btnRetakeAll.disabled = filledCount === 0;
 
-  
   if (allFilled) {
-    btnNextToStage3.style.display = "inline-block";
+    btnNextToStage3.style.display = "grid";
   } else {
     btnNextToStage3.style.display = "none";
   }
@@ -389,36 +388,32 @@ btnTakePicture.addEventListener("click", async () => {
     return;
   }
 
-  
   if (isCapturingProcess) return;
 
-  
   let startIndex = state.capturedPhotos.findIndex((p) => p === null);
   if (startIndex === -1) {
-    startIndex = 0; 
+    startIndex = 0;
   }
 
   isCapturingProcess = true;
-  btnTakePicture.textContent = "Skip Countdown";
-  btnTakePicture.classList.add("btn-skipping");
+  setCaptureButtonState(true);
 
   try {
     for (let i = startIndex; i < state.photoCount; i++) {
-  
       if (i >= state.photoCount) break;
 
       await runCountdown(5);
       const photoData = snapFrame();
       placePhotoInSlot(i, photoData);
 
+      // Brief breather between slots
       if (i < state.photoCount - 1) {
         await new Promise((res) => setTimeout(res, 600));
       }
     }
   } finally {
     isCapturingProcess = false;
-    btnTakePicture.textContent = "Take Picture";
-    btnTakePicture.classList.remove("btn-skipping");
+    setCaptureButtonState(false);
   }
 });
 
@@ -430,13 +425,41 @@ if (btnFlipCamera) {
   });
 }
 
+const ICON_CAMERA = `
+  <span class="btn-icon-wrapper">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path>
+      <circle cx="12" cy="13" r="3"></circle>
+    </svg>
+  </span>
+`;
+
+const ICON_SKIP = `
+  <span class="btn-icon-wrapper">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="13 19 22 12 13 5 13 19"></polygon>
+      <polygon points="2 19 11 12 2 5 2 19"></polygon>
+    </svg>
+  </span>
+`;
+
+function setCaptureButtonState(isSkipping) {
+  if (!btnTakePicture) return;
+  if (isSkipping) {
+    btnTakePicture.innerHTML = `<span class="btn-text">Skip Countdown</span>${ICON_SKIP}`;
+    btnTakePicture.classList.add("btn-skipping");
+  } else {
+    btnTakePicture.innerHTML = `<span class="btn-text">Take Picture</span>${ICON_CAMERA}`;
+    btnTakePicture.classList.remove("btn-skipping");
+  }
+}
+
 async function retakeSpecificSlot(index) {
   if (state.isCountingDown || isCapturingProcess) return;
 
   isCapturingProcess = true;
   state.activeRetakeIndex = index;
-  btnTakePicture.textContent = "Skip Countdown";
-  btnTakePicture.classList.add("btn-skipping");
+  setCaptureButtonState(true);
 
   try {
     await runCountdown(5);
@@ -445,8 +468,7 @@ async function retakeSpecificSlot(index) {
   } finally {
     state.activeRetakeIndex = null;
     isCapturingProcess = false;
-    btnTakePicture.textContent = "Take Picture";
-    btnTakePicture.classList.remove("btn-skipping");
+    setCaptureButtonState(false);
   }
 }
 
