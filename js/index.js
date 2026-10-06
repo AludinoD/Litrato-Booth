@@ -86,15 +86,17 @@ function createAmbientStrip() {
 }
 
 function initHeroBackground() {
-  const track1 = document.getElementById("marquee-track-1");
-  const track2 = document.getElementById("marquee-track-2");
+  const tracks = [
+    document.getElementById("marquee-track-1"),
+    document.getElementById("marquee-track-2")
+  ].filter(Boolean);
 
-  if (!track1 || !track2) return;
+  if (tracks.length === 0) return;
 
- 
-  const totalStrips = 12;
+  const totalStrips = 18; 
 
-  [track1, track2].forEach((track) => {
+  tracks.forEach((track) => {
+    track.innerHTML = "";
     const fragment = document.createDocumentFragment();
     const batch = [];
 
@@ -110,6 +112,5 @@ function initHeroBackground() {
     track.appendChild(fragment);
   });
 }
-
 
 initHeroBackground();

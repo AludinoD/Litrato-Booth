@@ -145,8 +145,9 @@ a {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  gap: 28px;
-  opacity: 0.28; 
+  gap: 32px;
+  overflow: hidden;
+  opacity: 0.22;
   mask-image: linear-gradient(
     to bottom,
     transparent 0%,
@@ -166,16 +167,16 @@ a {
 
 .frames-marquee-track {
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 36px;
   width: max-content;
-  animation: driftLeft 42s linear infinite;
+  will-change: transform;
+  animation: driftLeft 60s linear infinite;
 }
 
-
 #marquee-track-2 {
-  animation: driftLeft 52s linear infinite;
-  margin-left: -120px;
+  animation: driftLeft 75s linear infinite;
 }
 
 .ambient-strip {
