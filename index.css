@@ -168,15 +168,21 @@ a {
 .frames-marquee-track {
   display: flex;
   flex-wrap: nowrap;
-  align-items: center;
-  gap: 36px;
   width: max-content;
   will-change: transform;
-  animation: driftLeft 60s linear infinite;
+  animation: driftLeft 85s linear infinite;
 }
 
 #marquee-track-2 {
-  animation: driftLeft 75s linear infinite;
+  animation: driftLeft 105s linear infinite;
+}
+
+.marquee-group {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  padding-right: 36px;
+  flex-shrink: 0;
 }
 
 .ambient-strip {

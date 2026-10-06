@@ -88,28 +88,35 @@ function createAmbientStrip() {
 function initHeroBackground() {
   const tracks = [
     document.getElementById("marquee-track-1"),
-    document.getElementById("marquee-track-2")
+    document.getElementById("marquee-track-2"),
   ].filter(Boolean);
 
   if (tracks.length === 0) return;
 
-  const totalStrips = 18; 
+  // 24 unique frames per group gives high variety so patterns don't stand out
+  const itemsPerGroup = 24;
 
   tracks.forEach((track) => {
     track.innerHTML = "";
-    const fragment = document.createDocumentFragment();
-    const batch = [];
 
-    for (let i = 0; i < totalStrips; i++) {
-      batch.push(createAmbientStrip());
+    const group1 = document.createElement("div");
+    group1.className = "marquee-group";
+
+    const group2 = document.createElement("div");
+    group2.className = "marquee-group";
+
+    // Build unique randomized frames for Group 1
+    for (let i = 0; i < itemsPerGroup; i++) {
+      group1.appendChild(createAmbientStrip());
     }
 
-    batch.forEach((node) => fragment.appendChild(node));
+    // Build another unique set of randomized frames for Group 2
+    for (let i = 0; i < itemsPerGroup; i++) {
+      group2.appendChild(createAmbientStrip());
+    }
 
-    
-    batch.forEach((node) => fragment.appendChild(node.cloneNode(true)));
-
-    track.appendChild(fragment);
+    track.appendChild(group1);
+    track.appendChild(group2);
   });
 }
 
