@@ -102,11 +102,15 @@ a {
   align-items: center;
   justify-content: center;
   text-align: center;
+  position: relative;
+  overflow: hidden;
   padding: var(--space-xl) var(--space-lg);
 }
 
 .hero-content {
   max-width: 700px;
+  position: relative;
+  z-index: 2;
 }
 
 .hero-title {
@@ -133,6 +137,97 @@ a {
   animation: heroFadeUp 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s both;
 }
 
+.hero-frames-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  gap: 28px;
+  opacity: 0.28; 
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 1) 15%,
+    rgba(0, 0, 0, 1) 85%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 1) 15%,
+    rgba(0, 0, 0, 1) 85%,
+    transparent 100%
+  );
+}
+
+
+.frames-marquee-track {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  width: max-content;
+  animation: driftLeft 42s linear infinite;
+}
+
+
+#marquee-track-2 {
+  animation: driftLeft 52s linear infinite;
+  margin-left: -120px;
+}
+
+.ambient-strip {
+  display: flex;
+  box-shadow: 0 8px 24px rgba(35, 24, 21, 0.12);
+  border-radius: 4px;
+  padding: 8px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.ambient-slot {
+  background-color: rgba(35, 24, 21, 0.12);
+  border-radius: 2px;
+}
+
+/* Vertical Formats */
+.ambient-strip.vertical {
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 20px;
+  width: 72px;
+}
+.ambient-strip.vertical .ambient-slot {
+  width: 56px;
+  height: 42px;
+}
+
+/* Horizontal Formats */
+.ambient-strip.horizontal {
+  flex-direction: row;
+  gap: 6px;
+  padding-bottom: 16px;
+  height: 76px;
+}
+.ambient-strip.horizontal .ambient-slot {
+  width: 54px;
+  height: 42px;
+}
+
+.ambient-strip.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(2, 44px);
+  grid-template-rows: repeat(2, 33px);
+  gap: 5px;
+  padding: 8px 8px 18px 8px;
+  width: 104px;
+}
+.ambient-strip.grid-4 .ambient-slot {
+  width: 44px;
+  height: 33px;
+}
 
 .btn-primary {
   display: inline-block;
@@ -587,5 +682,14 @@ a {
 
   .privacy-list {
     padding-left: var(--space-md);
+  }
+}
+
+@keyframes driftLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
   }
 }

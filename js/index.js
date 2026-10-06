@@ -43,3 +43,73 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+
+const FRAME_PALETTE = [
+  "#FFFFFF", 
+  "#231815", 
+  "#B87D4B", 
+  "#E86A58", 
+  "#6A8E72", 
+  "#4B779A", 
+  "#F8E9DA"  
+];
+
+function createAmbientStrip() {
+  const counts = [2, 3, 4];
+  const orientations = ["vertical", "horizontal"];
+
+  const count = counts[Math.floor(Math.random() * counts.length)];
+  let orientation = orientations[Math.floor(Math.random() * orientations.length)];
+  const color = FRAME_PALETTE[Math.floor(Math.random() * FRAME_PALETTE.length)];
+
+  const strip = document.createElement("div");
+  strip.className = `ambient-strip ${orientation}`;
+  strip.style.backgroundColor = color;
+
+  
+  if (count === 4 && orientation === "horizontal") {
+    strip.className = "ambient-strip grid-4";
+  }
+
+  for (let i = 0; i < count; i++) {
+    const slot = document.createElement("div");
+    slot.className = "ambient-slot";
+   
+    if (color === "#231815") {
+      slot.style.backgroundColor = "rgba(255, 255, 255, 0.18)";
+    }
+    strip.appendChild(slot);
+  }
+
+  return strip;
+}
+
+function initHeroBackground() {
+  const track1 = document.getElementById("marquee-track-1");
+  const track2 = document.getElementById("marquee-track-2");
+
+  if (!track1 || !track2) return;
+
+ 
+  const totalStrips = 12;
+
+  [track1, track2].forEach((track) => {
+    const fragment = document.createDocumentFragment();
+    const batch = [];
+
+    for (let i = 0; i < totalStrips; i++) {
+      batch.push(createAmbientStrip());
+    }
+
+    batch.forEach((node) => fragment.appendChild(node));
+
+    
+    batch.forEach((node) => fragment.appendChild(node.cloneNode(true)));
+
+    track.appendChild(fragment);
+  });
+}
+
+
+initHeroBackground();
