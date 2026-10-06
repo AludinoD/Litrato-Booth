@@ -93,7 +93,7 @@ function initHeroBackground() {
 
   if (tracks.length === 0) return;
 
-  // 24 unique frames per group gives high variety so patterns don't stand out
+  
   const itemsPerGroup = 24;
 
   tracks.forEach((track) => {
@@ -105,12 +105,10 @@ function initHeroBackground() {
     const group2 = document.createElement("div");
     group2.className = "marquee-group";
 
-    // Build unique randomized frames for Group 1
     for (let i = 0; i < itemsPerGroup; i++) {
       group1.appendChild(createAmbientStrip());
     }
 
-    // Build another unique set of randomized frames for Group 2
     for (let i = 0; i < itemsPerGroup; i++) {
       group2.appendChild(createAmbientStrip());
     }
