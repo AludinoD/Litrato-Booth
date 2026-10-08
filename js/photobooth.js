@@ -48,6 +48,13 @@ const btnNextToStage3 = document.getElementById("btn-next-to-stage-3");
 const photoCanvas = document.getElementById("photo-canvas");
 const slotReplaceInput = document.getElementById("slot-replace-input");
 const btnFlipCamera = document.getElementById("btn-flip-camera");
+let selectedSheetIndex = null;
+const actionSheet = document.getElementById("slot-action-sheet");
+const sheetTitle = document.getElementById("sheet-title");
+const sheetBackdrop = document.getElementById("sheet-backdrop");
+const btnSheetCancel = document.getElementById("btn-sheet-cancel");
+const btnSheetRetake = document.getElementById("btn-sheet-retake");
+const sheetUploadInput = document.getElementById("sheet-upload-input");
 
 // Stage 3 DOM
 const canvas = document.getElementById("export-canvas");
@@ -231,6 +238,7 @@ function stopCamera() {
   }
 }
 
+
 function initThumbnailSlots() {
   thumbnailsTray.innerHTML = "";
   state.capturedPhotos = new Array(state.photoCount).fill(null);
@@ -239,6 +247,7 @@ function initThumbnailSlots() {
     const slot = document.createElement("div");
     slot.className = "thumbnail-slot";
     slot.id = `slot-${i}`;
+    slot.dataset.index = i;
     slot.innerHTML = `
       <div class="slot-inner">
         <span class="slot-placeholder">#${i + 1}</span>
@@ -251,6 +260,15 @@ function initThumbnailSlots() {
         </div>
       </div>
     `;
+
+    slot.addEventListener("click", (e) => {
+      const isMobile = window.innerWidth <= 768;
+      if (isMobile && state.capturedPhotos[i]) {
+        e.stopPropagation();
+        openSlotSheet(i);
+      }
+    });
+
     thumbnailsTray.appendChild(slot);
   }
 
@@ -518,6 +536,52 @@ btnNextToStage3.addEventListener("click", () => {
   }
 
   goToStage(3);
+});
+
+function openSlotSheet(index) {
+  selectedSheetIndex = index;
+  if (sheetTitle) {
+    sheetTitle.textContent = `Photo #${index + 1}`;
+  }
+  if (actionSheet) {
+    actionSheet.classList.add("active");
+    actionSheet.setAttribute("aria-hidden", "false");
+  }
+}
+
+function closeSlotSheet() {
+  selectedSheetIndex = null;
+  if (actionSheet) {
+    actionSheet.classList.remove("active");
+    actionSheet.setAttribute("aria-hidden", "true");
+  }
+}
+
+sheetBackdrop?.addEventListener("click", closeSlotSheet);
+btnSheetCancel?.addEventListener("click", closeSlotSheet);
+
+
+btnSheetRetake?.addEventListener("click", () => {
+  if (selectedSheetIndex !== null) {
+    const idx = selectedSheetIndex;
+    closeSlotSheet();
+    retakeSpecificSlot(idx);
+  }
+});
+
+
+sheetUploadInput?.addEventListener("change", (e) => {
+  const file = e.target.files?.[0];
+  if (selectedSheetIndex !== null && file) {
+    const targetIdx = selectedSheetIndex;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      placePhotoInSlot(targetIdx, event.target.result);
+      closeSlotSheet();
+      e.target.value = "";
+    };
+    reader.readAsDataURL(file);
+  }
 });
 
 /* Stage 3 */

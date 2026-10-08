@@ -321,7 +321,6 @@
         <canvas id="photo-canvas" hidden></canvas>
         <input type="file" id="slot-replace-input" accept="image/*" hidden />
       </section>
-
       <!-- Stage 3: Design & Export -->
       <section id="stage-3" class="stage-section" hidden>
         <div class="stage-top-bar">
@@ -450,6 +449,34 @@
         </div>
       </section>
     </main>
+
+    <!-- Mobile Responsiveness -->
+    <div id="slot-action-sheet" class="slot-action-sheet" aria-hidden="true">
+      <div class="sheet-backdrop" id="sheet-backdrop"></div>
+      <div class="sheet-modal">
+        <div class="sheet-handle"></div>
+        <h4 id="sheet-title">Slot #1</h4>
+        <p>Would you like to retake or change this photo?</p>
+
+        <div class="sheet-buttons">
+          <button type="button" id="btn-sheet-retake" class="btn-primary">
+            <span class="btn-text">Retake with Camera</span>
+          </button>
+
+          <label
+            for="sheet-upload-input"
+            class="btn-primary btn-secondary-style"
+          >
+            <span class="btn-text">Upload Replacement</span>
+          </label>
+          <input type="file" id="sheet-upload-input" accept="image/*" hidden />
+
+          <button type="button" id="btn-sheet-cancel" class="btn-sheet-dismiss">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
 
     <script src="../js/photobooth.js"></script>
   </body>
