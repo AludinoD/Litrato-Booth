@@ -302,10 +302,12 @@ function runCountdown(seconds = 5) {
     let current = seconds;
     countdownText.textContent = current;
 
+    playCountdownBeep(false);
     const timer = setInterval(() => {
       current -= 1;
       if (current > 0) {
         countdownText.textContent = current;
+        playCountdownBeep(current === 1);
       } else {
         finish();
       }
@@ -325,6 +327,7 @@ function runCountdown(seconds = 5) {
 }
 
 function snapFrame() {
+  playShutterSound();
   cameraFlash.classList.add("active");
   setTimeout(() => cameraFlash.classList.remove("active"), 200);
 
@@ -342,6 +345,51 @@ function snapFrame() {
   context.restore();
 
   return photoCanvas.toDataURL("image/png");
+}
+
+const shutterSound = new Audio("../assets/audio/shutter.mp3");
+shutterSound.volume = 0.85;
+
+let audioCtx = null;
+
+function getAudioContext() {
+  if (!audioCtx) {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (AudioContextClass) {
+      audioCtx = new AudioContextClass();
+    }
+  }
+  if (audioCtx && audioCtx.state === "suspended") {
+    audioCtx.resume();
+  }
+  return audioCtx;
+}
+
+function playCountdownBeep(isFinal = false) {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(isFinal ? 920 : 540, ctx.currentTime);
+
+  gain.gain.setValueAtTime(0.18, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+
+  osc.start();
+  osc.stop(ctx.currentTime + 0.12);
+}
+
+function playShutterSound() {
+  shutterSound.currentTime = 0;
+  shutterSound.play().catch((err) => {
+    console.warn("Shutter audio error:", err);
+  });
 }
 
 function placePhotoInSlot(index, dataUrl) {
@@ -538,51 +586,7 @@ btnNextToStage3.addEventListener("click", () => {
   goToStage(3);
 });
 
-function openSlotSheet(index) {
-  selectedSheetIndex = index;
-  if (sheetTitle) {
-    sheetTitle.textContent = `Photo #${index + 1}`;
-  }
-  if (actionSheet) {
-    actionSheet.classList.add("active");
-    actionSheet.setAttribute("aria-hidden", "false");
-  }
-}
 
-function closeSlotSheet() {
-  selectedSheetIndex = null;
-  if (actionSheet) {
-    actionSheet.classList.remove("active");
-    actionSheet.setAttribute("aria-hidden", "true");
-  }
-}
-
-sheetBackdrop?.addEventListener("click", closeSlotSheet);
-btnSheetCancel?.addEventListener("click", closeSlotSheet);
-
-
-btnSheetRetake?.addEventListener("click", () => {
-  if (selectedSheetIndex !== null) {
-    const idx = selectedSheetIndex;
-    closeSlotSheet();
-    retakeSpecificSlot(idx);
-  }
-});
-
-
-sheetUploadInput?.addEventListener("change", (e) => {
-  const file = e.target.files?.[0];
-  if (selectedSheetIndex !== null && file) {
-    const targetIdx = selectedSheetIndex;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      placePhotoInSlot(targetIdx, event.target.result);
-      closeSlotSheet();
-      e.target.value = "";
-    };
-    reader.readAsDataURL(file);
-  }
-});
 
 /* Stage 3 */
 let cachedFilteredCanvases = [];
