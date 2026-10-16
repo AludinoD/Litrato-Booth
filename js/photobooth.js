@@ -64,6 +64,9 @@ const customColorInput = document.getElementById("custom-color-input");
 const filterButtons = document.querySelectorAll(".filter-btn");
 const btnDownload = document.getElementById("btn-download");
 const btnBackStage2 = document.getElementById("btn-back-stage2");
+const stickersTray = document.getElementById("stickers-tray");
+const stickerFileInput = document.getElementById("sticker-file-input");
+const btnClearStickers = document.getElementById("btn-clear-stickers");
 
 
 function goToStage(stageNumber) {
@@ -89,6 +92,7 @@ function goToStage(stageNumber) {
     startCamera();
   } else if (stageNumber === 3) {
     stopCamera();
+    initStickerPicker();
     renderFrame();
   }
 }
@@ -685,9 +689,15 @@ async function renderFrame() {
 
   const isDarkFrame = getLuminance(state.design.frameColor) < 0.5;
   ctx.fillStyle = isDarkFrame ? "rgba(255, 255, 255, 0.9)" : "#231815";
-
   ctx.fillText("Litrato", canvasW / 2, canvasH - (bottomBar / 2));
   ctx.restore();
+
+  // --- Draw Stickers Layer ---
+  if (state.design.stickers && state.design.stickers.length > 0) {
+    state.design.stickers.forEach((sticker) => {
+      ctx.drawImage(sticker.img, sticker.x, sticker.y, sticker.width, sticker.height);
+    });
+  }
 
   isRendering = false;
 }
@@ -763,6 +773,165 @@ if (customColorInput) {
   });
 }
 
+const DEFAULT_STICKERS = [
+  {
+    id: "sparkle",
+    name: "Sparkle",
+    svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M50 0 C50 35 65 50 100 50 C65 50 50 65 50 100 C50 65 35 50 0 50 C35 50 50 35 50 0 Z" fill="#F4B942"/></svg>`
+  },
+  {
+    id: "heart",
+    name: "Heart",
+    svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M50 88 C20 62 5 44 5 28 C5 12 18 5 30 5 C39 5 46 10 50 16 C54 10 61 5 70 5 C82 5 95 12 95 28 C95 44 80 62 50 88 Z" fill="#E86A58"/></svg>`
+  },
+  {
+    id: "flower",
+    name: "Daisy",
+    svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="22" r="14" fill="#FFFFFF"/>
+      <circle cx="78" cy="50" r="14" fill="#FFFFFF"/>
+      <circle cx="50" cy="78" r="14" fill="#FFFFFF"/>
+      <circle cx="22" cy="50" r="14" fill="#FFFFFF"/>
+      <circle cx="30" cy="30" r="14" fill="#FFFFFF"/>
+      <circle cx="70" cy="30" r="14" fill="#FFFFFF"/>
+      <circle cx="70" cy="70" r="14" fill="#FFFFFF"/>
+      <circle cx="30" cy="70" r="14" fill="#FFFFFF"/>
+      <circle cx="50" cy="50" r="16" fill="#F4B942"/>
+    </svg>`
+  },
+  {
+    id: "star",
+    name: "Star",
+    svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polygon points="50,5 64,36 98,38 72,60 80,94 50,75 20,94 28,60 2,38 36,36" fill="#6A8E72"/></svg>`
+  },
+];
+
+function initStickerPicker() {
+  if (!stickersTray) return;
+  stickersTray.innerHTML = "";
+
+  DEFAULT_STICKERS.forEach((item) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "sticker-option-btn";
+    btn.title = item.name;
+    const blob = new Blob([item.svg], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(blob);
+
+    btn.innerHTML = `<img src="${url}" alt="${item.name}" />`;
+    btn.addEventListener("click", () => {
+      addStickerToCanvas(url, 80, 80);
+    });
+    stickersTray.appendChild(btn);
+  });
+}
+
+// Add Sticker to State
+function addStickerToCanvas(imageSrc, width = 85, height = 85) {
+  const img = new Image();
+  img.onload = () => {
+    const defaultX = canvas.width ? canvas.width / 2 - width / 2 : 50;
+    const defaultY = canvas.height ? canvas.height - 90 : 50;
+
+    state.design.stickers.push({
+      img: img,
+      x: defaultX,
+      y: defaultY,
+      width: width,
+      height: height
+    });
+
+    renderFrame();
+  };
+  img.src = imageSrc;
+}
+
+// Custom Upload Handler
+stickerFileInput?.addEventListener("change", (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    addStickerToCanvas(evt.target.result, 100, 100);
+    e.target.value = "";
+  };
+  reader.readAsDataURL(file);
+});
+
+btnClearStickers?.addEventListener("click", () => {
+  state.design.stickers = [];
+  renderFrame();
+});
+
+// Canvas Drag & Drop State
+let draggedStickerIndex = null;
+let dragOffsetX = 0;
+let dragOffsetY = 0;
+
+function getCanvasPointerPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+  return {
+    x: (clientX - rect.left) * scaleX,
+    y: (clientY - rect.top) * scaleY
+  };
+}
+
+// Drag Listeners on the Canvas
+if (canvas) {
+  const startDrag = (e) => {
+    const pos = getCanvasPointerPos(e);
+    for (let i = state.design.stickers.length - 1; i >= 0; i--) {
+      const s = state.design.stickers[i];
+      if (
+        pos.x >= s.x &&
+        pos.x <= s.x + s.width &&
+        pos.y >= s.y &&
+        pos.y <= s.y + s.height
+      ) {
+        draggedStickerIndex = i;
+        dragOffsetX = pos.x - s.x;
+        dragOffsetY = pos.y - s.y;
+        canvas.classList.add("dragging");
+        e.preventDefault();
+        break;
+      }
+    }
+  };
+
+  const moveDrag = (e) => {
+    if (draggedStickerIndex === null) return;
+    const pos = getCanvasPointerPos(e);
+    const sticker = state.design.stickers[draggedStickerIndex];
+
+    sticker.x = pos.x - dragOffsetX;
+    sticker.y = pos.y - dragOffsetY;
+
+    renderFrame();
+    e.preventDefault();
+  };
+
+  const stopDrag = () => {
+    draggedStickerIndex = null;
+    canvas.classList.remove("dragging");
+  };
+
+  canvas.addEventListener("mousedown", startDrag);
+  window.addEventListener("mousemove", moveDrag);
+  window.addEventListener("mouseup", stopDrag);
+
+  canvas.addEventListener("touchstart", startDrag, { passive: false });
+  window.addEventListener("touchmove", moveDrag, { passive: false });
+  window.addEventListener("touchend", stopDrag);
+}
+
+
 filterButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
     filterButtons.forEach((b) => b.classList.remove("active"));
@@ -781,3 +950,5 @@ if (btnDownload) {
     link.click();
   });
 }
+
+initStickerPicker();

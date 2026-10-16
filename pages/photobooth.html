@@ -416,6 +416,47 @@
               </div>
             </div>
 
+            <!-- Stickers -->
+            <div class="control-group">
+              <div class="control-header-flex">
+                <h3 class="control-heading">Stickers</h3>
+                <button
+                  type="button"
+                  id="btn-clear-stickers"
+                  class="btn-clear-text"
+                  title="Remove all stickers"
+                >
+                  Clear
+                </button>
+              </div>
+              <div class="stickers-tray" id="stickers-tray"></div>
+              <div class="custom-sticker-upload">
+                <label for="sticker-file-input" class="btn-upload-sticker">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                  <span>Add Custom Sticker </span>
+                </label>
+                <input
+                  type="file"
+                  id="sticker-file-input"
+                  accept="image/png, image/svg+xml, image/webp"
+                  hidden
+                />
+              </div>
+              <p class="sticker-hint">
+                Tip: Drag stickers directly on the preview to reposition them.
+              </p>
+            </div>
+
             <!-- Image Filters -->
             <div class="control-group">
               <h3 class="control-heading">Filters</h3>
