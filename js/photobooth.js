@@ -67,6 +67,14 @@ const btnBackStage2 = document.getElementById("btn-back-stage2");
 const stickersTray = document.getElementById("stickers-tray");
 const stickerFileInput = document.getElementById("sticker-file-input");
 const btnClearStickers = document.getElementById("btn-clear-stickers");
+const stickerControlsPanel = document.getElementById("sticker-controls-panel");
+const btnDeleteActiveSticker = document.getElementById("btn-delete-active-sticker");
+const sizeSlider = document.getElementById("sticker-size-slider");
+const sizePxVal = document.getElementById("size-px-val");
+const rotateSlider = document.getElementById("sticker-rotate-slider");
+const rotateDegreesVal = document.getElementById("rotate-degrees-val");
+const stickerColorSwatches = document.querySelectorAll("#sticker-color-palette .color-swatch-sm");
+const stickerColorCustom = document.getElementById("sticker-color-custom");
 
 
 function goToStage(stageNumber) {
@@ -613,9 +621,8 @@ async function renderFrame() {
 
   const count = state.photoCount || 4;
   const isHorizontal = state.orientation === "horizontal";
-  const isGrid4 = count === 4 && isHorizontal; // 2x2 Bento/Grid layout
+  const isGrid4 = count === 4 && isHorizontal;
 
-  // High Resolution Export Sizing
   const slotW = 600;
   const slotH = 450;
   const border = 36;
@@ -625,15 +632,12 @@ async function renderFrame() {
   let canvasW, canvasH;
 
   if (isGrid4) {
-    // 2x2 Grid Layout
     canvasW = border * 2 + slotW * 2 + gap;
     canvasH = border * 2 + slotH * 2 + gap + bottomBar;
   } else if (isHorizontal) {
-    // 1-Row Strip
     canvasW = border * 2 + (count * slotW) + ((count - 1) * gap);
     canvasH = border * 2 + slotH + bottomBar;
   } else {
-    // Vertical Column Strip
     canvasW = border * 2 + slotW;
     canvasH = border * 2 + (count * slotH) + ((count - 1) * gap) + bottomBar;
   }
@@ -682,6 +686,7 @@ async function renderFrame() {
     await document.fonts.ready;
   }
 
+  // Footer Logo
   ctx.save();
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
@@ -692,10 +697,36 @@ async function renderFrame() {
   ctx.fillText("Litrato", canvasW / 2, canvasH - (bottomBar / 2));
   ctx.restore();
 
-  // --- Draw Stickers Layer ---
+  // Draw Stickers Layer
   if (state.design.stickers && state.design.stickers.length > 0) {
-    state.design.stickers.forEach((sticker) => {
-      ctx.drawImage(sticker.img, sticker.x, sticker.y, sticker.width, sticker.height);
+    state.design.stickers.forEach((sticker, index) => {
+      ctx.save();
+      const cx = sticker.x + sticker.width / 2;
+      const cy = sticker.y + sticker.height / 2;
+      ctx.translate(cx, cy);
+      ctx.rotate((sticker.rotation * Math.PI) / 180);
+
+      ctx.drawImage(
+        sticker.img,
+        -sticker.width / 2,
+        -sticker.height / 2,
+        sticker.width,
+        sticker.height
+      );
+
+      if (index === selectedStickerIndex) {
+        ctx.strokeStyle = "rgba(184, 125, 75, 0.9)";
+        ctx.lineWidth = 3;
+        ctx.setLineDash([6, 4]);
+        ctx.strokeRect(
+          -sticker.width / 2 - 4,
+          -sticker.height / 2 - 4,
+          sticker.width + 8,
+          sticker.height + 8
+        );
+      }
+
+      ctx.restore();
     });
   }
 
@@ -777,17 +808,20 @@ const DEFAULT_STICKERS = [
   {
     id: "sparkle",
     name: "Sparkle",
-    svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M50 0 C50 35 65 50 100 50 C65 50 50 65 50 100 C50 65 35 50 0 50 C35 50 50 35 50 0 Z" fill="#F4B942"/></svg>`
+    defaultColor: "#F4B942",
+    svgTemplate: (c) => `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M50 0 C50 35 65 50 100 50 C65 50 50 65 50 100 C50 65 35 50 0 50 C35 50 50 35 50 0 Z" fill="${c}"/></svg>`
   },
   {
     id: "heart",
     name: "Heart",
-    svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M50 88 C20 62 5 44 5 28 C5 12 18 5 30 5 C39 5 46 10 50 16 C54 10 61 5 70 5 C82 5 95 12 95 28 C95 44 80 62 50 88 Z" fill="#E86A58"/></svg>`
+    defaultColor: "#E86A58",
+    svgTemplate: (c) => `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M50 88 C20 62 5 44 5 28 C5 12 18 5 30 5 C39 5 46 10 50 16 C54 10 61 5 70 5 C82 5 95 12 95 28 C95 44 80 62 50 88 Z" fill="${c}"/></svg>`
   },
   {
     id: "flower",
     name: "Daisy",
-    svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    defaultColor: "#F4B942",
+    svgTemplate: (c) => `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <circle cx="50" cy="22" r="14" fill="#FFFFFF"/>
       <circle cx="78" cy="50" r="14" fill="#FFFFFF"/>
       <circle cx="50" cy="78" r="14" fill="#FFFFFF"/>
@@ -796,15 +830,18 @@ const DEFAULT_STICKERS = [
       <circle cx="70" cy="30" r="14" fill="#FFFFFF"/>
       <circle cx="70" cy="70" r="14" fill="#FFFFFF"/>
       <circle cx="30" cy="70" r="14" fill="#FFFFFF"/>
-      <circle cx="50" cy="50" r="16" fill="#F4B942"/>
+      <circle cx="50" cy="50" r="16" fill="${c}"/>
     </svg>`
   },
   {
     id: "star",
     name: "Star",
-    svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polygon points="50,5 64,36 98,38 72,60 80,94 50,75 20,94 28,60 2,38 36,36" fill="#6A8E72"/></svg>`
-  },
+    defaultColor: "#6A8E72",
+    svgTemplate: (c) => `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polygon points="50,5 64,36 98,38 72,60 80,94 50,75 20,94 28,60 2,38 36,36" fill="${c}"/></svg>`
+  }
 ];
+
+let selectedStickerIndex = null;
 
 function initStickerPicker() {
   if (!stickersTray) return;
@@ -815,56 +852,186 @@ function initStickerPicker() {
     btn.type = "button";
     btn.className = "sticker-option-btn";
     btn.title = item.name;
-    const blob = new Blob([item.svg], { type: "image/svg+xml" });
+
+    const rawSvg = item.svgTemplate(item.defaultColor);
+    const blob = new Blob([rawSvg], { type: "image/svg+xml" });
     const url = URL.createObjectURL(blob);
 
     btn.innerHTML = `<img src="${url}" alt="${item.name}" />`;
     btn.addEventListener("click", () => {
-      addStickerToCanvas(url, 80, 80);
+      addPredefinedSticker(item);
     });
     stickersTray.appendChild(btn);
   });
 }
 
-// Add Sticker to State
-function addStickerToCanvas(imageSrc, width = 85, height = 85) {
+function addPredefinedSticker(itemDef) {
+  const color = itemDef.defaultColor;
+  const rawSvg = itemDef.svgTemplate(color);
+  const blob = new Blob([rawSvg], { type: "image/svg+xml" });
+  const url = URL.createObjectURL(blob);
+
   const img = new Image();
   img.onload = () => {
-    const defaultX = canvas.width ? canvas.width / 2 - width / 2 : 50;
-    const defaultY = canvas.height ? canvas.height - 90 : 50;
+    const w = 85;
+    const h = (itemDef.id === "date-stamp") ? 36 : 85;
+    const defaultX = canvas ? canvas.width / 2 - w / 2 : 50;
+    const defaultY = canvas ? canvas.height - 95 : 50;
 
     state.design.stickers.push({
+      type: "predefined",
+      def: itemDef,
+      color: color,
       img: img,
       x: defaultX,
       y: defaultY,
-      width: width,
-      height: height
+      width: w,
+      height: h,
+      rotation: 0
     });
 
+    selectSticker(state.design.stickers.length - 1);
+    renderFrame();
+  };
+  img.src = url;
+}
+
+function addCustomSticker(imageSrc) {
+  const img = new Image();
+  img.onload = () => {
+    const aspect = img.width / img.height;
+    const w = 90;
+    const h = w / aspect;
+    const defaultX = canvas ? canvas.width / 2 - w / 2 : 50;
+    const defaultY = canvas ? canvas.height - 95 : 50;
+
+    state.design.stickers.push({
+      type: "custom",
+      img: img,
+      x: defaultX,
+      y: defaultY,
+      width: w,
+      height: h,
+      rotation: 0
+    });
+
+    selectSticker(state.design.stickers.length - 1);
     renderFrame();
   };
   img.src = imageSrc;
 }
 
-// Custom Upload Handler
+function selectSticker(index) {
+  selectedStickerIndex = index;
+  if (index === null || !state.design.stickers[index]) {
+    if (stickerControlsPanel) stickerControlsPanel.hidden = true;
+    return;
+  }
+
+  const s = state.design.stickers[index];
+  if (stickerControlsPanel) stickerControlsPanel.hidden = false;
+
+  const currentW = Math.round(s.width);
+  if (sizeSlider) sizeSlider.value = currentW;
+  if (sizePxVal) sizePxVal.textContent = `${currentW}px`;
+
+  if (rotateSlider) rotateSlider.value = s.rotation;
+  if (rotateDegreesVal) rotateDegreesVal.textContent = `${s.rotation}°`;
+
+  const colorRow = document.querySelector(".sticker-color-row");
+  if (colorRow) {
+    colorRow.style.display = (s.type === "predefined") ? "flex" : "none";
+  }
+}
+
+function setStickerColor(newColor) {
+  if (selectedStickerIndex === null) return;
+  const s = state.design.stickers[selectedStickerIndex];
+  if (!s || s.type !== "predefined") return;
+
+  s.color = newColor;
+  const rawSvg = s.def.svgTemplate(newColor);
+  const blob = new Blob([rawSvg], { type: "image/svg+xml" });
+  const url = URL.createObjectURL(blob);
+
+  const img = new Image();
+  img.onload = () => {
+    s.img = img;
+    renderFrame();
+  };
+  img.src = url;
+}
+
+sizeSlider?.addEventListener("input", (e) => {
+  if (selectedStickerIndex === null) return;
+  const s = state.design.stickers[selectedStickerIndex];
+  const newW = parseFloat(e.target.value);
+  const ratio = s.height / s.width;
+  s.width = newW;
+  s.height = newW * ratio;
+  if (sizePxVal) sizePxVal.textContent = `${Math.round(newW)}px`;
+  renderFrame();
+});
+
+rotateSlider?.addEventListener("input", (e) => {
+  if (selectedStickerIndex === null) return;
+  const s = state.design.stickers[selectedStickerIndex];
+  s.rotation = parseInt(e.target.value, 10);
+  if (rotateDegreesVal) rotateDegreesVal.textContent = `${s.rotation}°`;
+  renderFrame();
+});
+
+stickerColorSwatches.forEach((btn) => {
+  btn.addEventListener("click", () => setStickerColor(btn.dataset.color));
+});
+
+stickerColorCustom?.addEventListener("input", (e) => setStickerColor(e.target.value));
+
+btnDeleteActiveSticker?.addEventListener("click", () => {
+  if (selectedStickerIndex !== null) {
+    state.design.stickers.splice(selectedStickerIndex, 1);
+    selectSticker(null);
+    renderFrame();
+  }
+});
+
+btnClearStickers?.addEventListener("click", () => {
+  state.design.stickers = [];
+  selectSticker(null);
+  renderFrame();
+});
+
 stickerFileInput?.addEventListener("change", (e) => {
   const file = e.target.files?.[0];
   if (!file) return;
 
   const reader = new FileReader();
   reader.onload = (evt) => {
-    addStickerToCanvas(evt.target.result, 100, 100);
+    addCustomSticker(evt.target.result);
     e.target.value = "";
   };
   reader.readAsDataURL(file);
 });
 
-btnClearStickers?.addEventListener("click", () => {
-  state.design.stickers = [];
-  renderFrame();
-});
+function isPointInSticker(px, py, s) {
+  const cx = s.x + s.width / 2;
+  const cy = s.y + s.height / 2;
+  const rad = (-s.rotation * Math.PI) / 180;
 
-// Canvas Drag & Drop State
+  const dx = px - cx;
+  const dy = py - cy;
+  const localX = dx * Math.cos(rad) - dy * Math.sin(rad);
+  const localY = dx * Math.sin(rad) + dy * Math.cos(rad);
+
+  return (
+    localX >= -s.width / 2 &&
+    localX <= s.width / 2 &&
+    localY >= -s.height / 2 &&
+    localY <= s.height / 2
+  );
+}
+
+
 let draggedStickerIndex = null;
 let dragOffsetX = 0;
 let dragOffsetY = 0;
@@ -882,6 +1049,61 @@ function getCanvasPointerPos(e) {
     y: (clientY - rect.top) * scaleY
   };
 }
+
+if (canvas) {
+  const startDrag = (e) => {
+    const pos = getCanvasPointerPos(e);
+    let hitFound = false;
+
+    for (let i = state.design.stickers.length - 1; i >= 0; i--) {
+      const s = state.design.stickers[i];
+      if (isPointInSticker(pos.x, pos.y, s)) {
+        draggedStickerIndex = i;
+        dragOffsetX = pos.x - s.x;
+        dragOffsetY = pos.y - s.y;
+        selectSticker(i);
+        canvas.classList.add("dragging");
+        renderFrame();
+        hitFound = true;
+        e.preventDefault();
+        break;
+      }
+    }
+
+    if (!hitFound) {
+      selectSticker(null);
+      renderFrame();
+    }
+  };
+
+  const moveDrag = (e) => {
+    if (draggedStickerIndex === null) return;
+    const pos = getCanvasPointerPos(e);
+    const sticker = state.design.stickers[draggedStickerIndex];
+
+    sticker.x = pos.x - dragOffsetX;
+    sticker.y = pos.y - dragOffsetY;
+
+    renderFrame();
+    e.preventDefault();
+  };
+
+  const stopDrag = () => {
+    draggedStickerIndex = null;
+    canvas.classList.remove("dragging");
+  };
+
+  canvas.addEventListener("mousedown", startDrag);
+  window.addEventListener("mousemove", moveDrag);
+  window.addEventListener("mouseup", stopDrag);
+
+  canvas.addEventListener("touchstart", startDrag, { passive: false });
+  window.addEventListener("touchmove", moveDrag, { passive: false });
+  window.addEventListener("touchend", stopDrag);
+}
+
+// Initial Boot
+initStickerPicker();
 
 // Drag Listeners on the Canvas
 if (canvas) {
@@ -950,5 +1172,3 @@ if (btnDownload) {
     link.click();
   });
 }
-
-initStickerPicker();

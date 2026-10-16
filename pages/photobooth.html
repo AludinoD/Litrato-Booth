@@ -456,6 +456,125 @@
                 Tip: Drag stickers directly on the preview to reposition them.
               </p>
             </div>
+            <div
+              class="selected-sticker-controls"
+              id="sticker-controls-panel"
+              hidden
+            >
+              <div class="sticker-tools-header">
+                <span class="sticker-active-label">Edit Selected Sticker</span>
+                <button
+                  type="button"
+                  id="btn-delete-active-sticker"
+                  class="btn-delete-sticker-icon"
+                  title="Delete Sticker"
+                >
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path
+                      d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Sticker Color Palette -->
+              <div class="sticker-color-row">
+                <span class="tool-sublabel">Color</span>
+                <div
+                  class="color-palette mini-palette"
+                  id="sticker-color-palette"
+                >
+                  <button
+                    type="button"
+                    class="color-swatch-sm"
+                    data-color="#F4B942"
+                    style="background-color: #f4b942"
+                    title="Gold"
+                  ></button>
+                  <button
+                    type="button"
+                    class="color-swatch-sm"
+                    data-color="#E86A58"
+                    style="background-color: #e86a58"
+                    title="Terracotta"
+                  ></button>
+                  <button
+                    type="button"
+                    class="color-swatch-sm"
+                    data-color="#FFFFFF"
+                    style="background-color: #ffffff"
+                    title="White"
+                  ></button>
+                  <button
+                    type="button"
+                    class="color-swatch-sm"
+                    data-color="#231815"
+                    style="background-color: #231815"
+                    title="Black"
+                  ></button>
+                  <button
+                    type="button"
+                    class="color-swatch-sm"
+                    data-color="#6A8E72"
+                    style="background-color: #6a8e72"
+                    title="Sage"
+                  ></button>
+                  <button
+                    type="button"
+                    class="color-swatch-sm"
+                    data-color="#4B779A"
+                    style="background-color: #4b779a"
+                    title="Denim"
+                  ></button>
+                  <label
+                    class="color-picker-label color-picker-sm"
+                    title="Custom Color"
+                  >
+                    <span>+</span>
+                    <input
+                      type="color"
+                      id="sticker-color-custom"
+                      value="#F4B942"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <!-- Sliders for Size & Rotation -->
+              <div class="sticker-slider-row">
+                <label for="sticker-size-slider">Size</label>
+                <input
+                  type="range"
+                  id="sticker-size-slider"
+                  min="40"
+                  max="220"
+                  value="85"
+                />
+                <span id="size-px-val" class="slider-val-readout">85px</span>
+              </div>
+
+              <div class="sticker-slider-row">
+                <label for="sticker-rotate-slider">Rotate</label>
+                <input
+                  type="range"
+                  id="sticker-rotate-slider"
+                  min="-180"
+                  max="180"
+                  value="0"
+                />
+                <span id="rotate-degrees-val" class="slider-val-readout"
+                  >0°</span
+                >
+              </div>
+            </div>
 
             <!-- Image Filters -->
             <div class="control-group">
