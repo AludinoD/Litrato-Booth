@@ -1165,10 +1165,17 @@ filterButtons.forEach((btn) => {
 });
 
 if (btnDownload) {
-  btnDownload.addEventListener("click", () => {
+  btnDownload.addEventListener("click", async () => {
+    const prevSelected = selectedStickerIndex;
+    selectedStickerIndex = null;
+    await renderFrame();
+
     const link = document.createElement("a");
     link.download = `litrato-${state.photoCount}-photos-${Date.now()}.png`;
     link.href = canvas.toDataURL("image/png", 1.0);
     link.click();
+
+    selectedStickerIndex = prevSelected;
+    await renderFrame();
   });
 }
