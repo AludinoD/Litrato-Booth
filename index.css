@@ -1,4 +1,12 @@
 /* Design System & CSS Custom Properties */
+  @font-face {
+    font-family: 'Charman Serif';
+    src: url('../assets/fonts/charman-serif/CharmanSerif-Black.otf') format('opentype');
+    font-weight: 700 900;
+    font-style: normal;
+    font-display: swap;
+  }
+
 :root {
   /* Color Palette */
   --bg-primary: #F8E9DA;
@@ -12,13 +20,6 @@
   --divider-color: #D9BFA7;
 
   /* Typography Scales */
-  @font-face {
-    font-family: 'Charman Serif';
-    src: url('../assets/fonts/charman-serif/CharmanSerif-Black.otf') format('opentype');
-    font-weight: 700 900;
-    font-style: normal;
-    font-display: swap;
-  }
   --font-serif: "Charman Serif", Georgia, "Times New Roman", serif;
   --font-sans: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
