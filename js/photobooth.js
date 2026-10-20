@@ -274,8 +274,12 @@ function initThumbnailSlots() {
     `;
 
     slot.addEventListener("click", (e) => {
-      const isMobile = window.innerWidth <= 768;
-      if (isMobile && state.capturedPhotos[i]) {
+      if (e.target.closest(".btn-slot-retake") || e.target.closest(".btn-slot-replace")) {
+        return;
+      }
+
+      if (state.capturedPhotos[i]) {
+        e.preventDefault();
         e.stopPropagation();
         openSlotSheet(i);
       }
@@ -287,6 +291,52 @@ function initThumbnailSlots() {
   attachSlotActionListeners();
   updateStage2Controls();
 }
+
+function openSlotSheet(index) {
+  selectedSheetIndex = index;
+  if (sheetTitle) {
+    sheetTitle.textContent = `Photo #${index + 1}`;
+  }
+  if (actionSheet) {
+    actionSheet.classList.add("active");
+    actionSheet.setAttribute("aria-hidden", "false");
+  }
+}
+
+function closeSlotSheet() {
+  selectedSheetIndex = null;
+  if (actionSheet) {
+    actionSheet.classList.remove("active");
+    actionSheet.setAttribute("aria-hidden", "true");
+  }
+}
+
+sheetBackdrop?.addEventListener("click", closeSlotSheet);
+btnSheetCancel?.addEventListener("click", closeSlotSheet);
+
+
+btnSheetRetake?.addEventListener("click", () => {
+  if (selectedSheetIndex !== null) {
+    const idx = selectedSheetIndex;
+    closeSlotSheet();
+    retakeSpecificSlot(idx);
+  }
+});
+
+
+sheetUploadInput?.addEventListener("change", (e) => {
+  const file = e.target.files?.[0];
+  if (selectedSheetIndex !== null && file) {
+    const targetIdx = selectedSheetIndex;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      placePhotoInSlot(targetIdx, event.target.result);
+      closeSlotSheet();
+      e.target.value = "";
+    };
+    reader.readAsDataURL(file);
+  }
+});
 
 function attachSlotActionListeners() {
   document.querySelectorAll(".btn-slot-retake").forEach((btn) => {
