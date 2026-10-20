@@ -10,6 +10,14 @@
   --screen-placeholder-bg: #C7C5C5;
   --border-muted: #D9BFA7;
 
+  @font-face {
+    font-family: 'Charman Serif';
+    src: url('../assets/fonts/charman-serif/CharmanSerif-Black.otf') format('opentype');
+    font-weight: 700 900;
+    font-style: normal;
+    font-display: swap;
+  }
+  
   --font-serif: "Charman Serif", Georgia, "Times New Roman", serif;
   --font-sans: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
