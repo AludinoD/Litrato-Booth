@@ -201,6 +201,16 @@ async function startCamera() {
 
   if (statusElement) statusElement.classList.remove("active");
 
+  // Keep: Essential check for secure context and browser capability
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    console.error("Camera API not supported or context is insecure.");
+    if (statusElement) {
+      statusElement.innerHTML = "<p>Camera access requires a secure connection (HTTPS) or permission.</p>";
+      statusElement.classList.add("active");
+    }
+    return;
+  }
+
   if (state.facingMode === "user") {
     video.classList.add("mirrored");
   } else {
@@ -211,32 +221,29 @@ async function startCamera() {
     state.stream.getTracks().forEach((track) => track.stop());
   }
 
+  const constraints = {
+    video: {
+      facingMode: state.facingMode ? { ideal: state.facingMode } : "user"
+    },
+    audio: false
+  };
+
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: state.facingMode,
-        width: { ideal: 1280 },
-        height: { ideal: 720 }
-      },
-      audio: false
-    });
+    const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
     state.stream = stream;
     video.srcObject = stream;
+    video.setAttribute("playsinline", "true");
+    video.setAttribute("autoplay", "true");
     video.muted = true;
 
-    await new Promise((resolve) => {
-      video.onloadedmetadata = () => {
-        video.play().then(resolve);
-      };
-    });
+    await video.play();
 
-    // Camera succeeded
     if (statusElement) statusElement.classList.remove("active");
   } catch (err) {
     console.error("Camera access error:", err);
-    // Camera failed
     if (statusElement) {
+      statusElement.innerHTML = `<p>${err.name === "NotAllowedError" ? "Camera permission denied. Please allow access in browser settings." : "Unable to access camera: " + err.message}</p>`;
       statusElement.classList.add("active");
     }
   }
