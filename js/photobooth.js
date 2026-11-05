@@ -82,6 +82,34 @@ const mstBtnDelete = document.getElementById("mst-btn-delete");
 const mstBtnDone = document.getElementById("mst-btn-done");
 const mstColorPreview = document.getElementById("mst-color-preview");
 
+const themeToggleBtn = document.getElementById("theme-toggle-btn");
+
+function initTheme() {
+  const savedTheme = localStorage.getItem("litrato-theme");
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+  if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
+    document.documentElement.setAttribute("data-theme", "dark");
+  } else {
+    document.documentElement.removeAttribute("data-theme");
+  }
+}
+
+initTheme();
+
+if (themeToggleBtn) {
+  themeToggleBtn.addEventListener("click", () => {
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    if (isDark) {
+      document.documentElement.removeAttribute("data-theme");
+      localStorage.setItem("litrato-theme", "light");
+    } else {
+      document.documentElement.setAttribute("data-theme", "dark");
+      localStorage.setItem("litrato-theme", "dark");
+    }
+  });
+}
+
 
 function goToStage(stageNumber) {
   state.currentStage = stageNumber;
@@ -1333,3 +1361,10 @@ if (btnDownload) {
 
 // Initial Boot
 initStickerPicker();
+
+// Todo:
+// Add Cropping/ Adjusting frame when uploading pictures
+// Add rotations(Middle Rotation) and Expansion(Pull corner) on stickers
+// Add Dark Mode 
+// The ability to choose camera
+// Customizable Countdown

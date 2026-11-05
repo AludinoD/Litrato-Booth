@@ -36,6 +36,113 @@
   --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
+[data-theme="dark"] {
+  --bg-primary: #2A1F1B;
+  --header-bg: #3A2C27;  
+  --accent-container: #4A3730;     
+  --btn-bg: #E09559;                
+  --btn-hover: #D18243;        
+  --text-main: #F5E6D8;        
+  --card-bg: #362823;               
+  --screen-placeholder-bg: #45342D; 
+  --border-muted: #544037;         
+
+  --shadow-btn: 0px 4px 0px rgba(18, 12, 10, 0.4);
+  --shadow-card: 0 4px 16px rgba(15, 10, 8, 0.3);
+}
+
+[data-theme="dark"] .layout-card.selected {
+  background-color: #3F2E28;
+  border-color: #E09559;
+  box-shadow: 0 0 0 3px rgba(224, 149, 89, 0.3), 0 8px 18px rgba(0, 0, 0, 0.25);
+}
+
+[data-theme="dark"] .layout-preview-frame {
+  background-color: #2D201B;
+  border-color: #4A3730;
+}
+
+[data-theme="dark"] .btn-secondary-style {
+  background-color: #4D3932;
+  color: #F5E6D8;
+}
+
+[data-theme="dark"] .btn-secondary-style:hover {
+  background-color: #5A433B;
+}
+
+[data-theme="dark"] .btn-toggle {
+  color: #E6D5C5;
+}
+
+[data-theme="dark"] .btn-toggle.active {
+  background-color: #E09559;
+  color: #2A1F1B;
+}
+
+[data-theme="dark"] .orientation-toggle {
+  background-color: rgba(224, 149, 89, 0.12);
+  border-color: #544037;
+}
+
+[data-theme="dark"] .stage-subheading,
+[data-theme="dark"] .btn-text-back,
+[data-theme="dark"] .sticker-hint {
+  color: #C2ABA0;
+}
+
+[data-theme="dark"] .btn-upload-sticker {
+  background-color: #382A24;
+  border-color: #544037;
+  color: #F5E6D8;
+}
+
+[data-theme="dark"] .btn-upload-sticker:hover {
+  background-color: #44332C;
+}
+
+[data-theme="dark"] .sticker-option-btn {
+  background-color: #362823;
+  border-color: #544037;
+}
+
+[data-theme="dark"] .selected-sticker-controls {
+  background-color: rgba(224, 149, 89, 0.1);
+  border-color: #544037;
+}
+
+[data-theme="dark"] .mobile-sticker-toolbar {
+  background: #362823;
+  border-color: #544037;
+}
+
+[data-theme="dark"] .mst-btn {
+  color: #F5E6D8;
+}
+
+[data-theme="dark"] .sheet-modal {
+  background-color: #362823;
+  color: #F5E6D8;
+}
+
+[data-theme="dark"] .sheet-modal p {
+  color: #C2ABA0;
+}
+
+[data-theme="dark"] .theme-toggle-btn {
+  background: rgba(224, 149, 89, 0.18);
+  border-color: rgba(224, 149, 89, 0.35);
+  color: #F3A96E;
+}
+
+[data-theme="dark"] .filter-btn {
+  color: #030303;
+}
+
+[data-theme="dark"] .filter-btn.active {
+  color: #030303;
+}
+
 /* Reset & Base Viewport Setup */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -73,7 +180,65 @@ a {
   padding: 0 var(--space-lg);
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
+}
+
+.theme-toggle-btn {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(35, 24, 21, 0.25);
+  backdrop-filter: blur(4px);
+  color: #FFFFFF;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), 
+              background-color 0.2s ease, 
+              border-color 0.2s ease;
+}
+
+
+
+.theme-toggle-btn:hover {
+  transform: scale(1.08);
+}
+
+.theme-toggle-btn:active {
+  transform: scale(0.92);
+}
+
+.theme-icon {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+}
+
+
+.icon-sun {
+  opacity: 0;
+  transform: rotate(90deg) scale(0.5);
+}
+
+.icon-moon {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+
+[data-theme="dark"] .icon-sun {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+[data-theme="dark"] .icon-moon {
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.5);
 }
 
 .nav-logo {
@@ -90,6 +255,24 @@ a {
 
 .nav-logo:hover {
   transform: rotate(-2deg) scale(1.04);
+}
+
+body,
+.navbar,
+.stage-section,
+.layout-card,
+.layout-preview-frame,
+.btn-primary,
+.btn-secondary-style,
+.btn-toggle,
+.step-circle,
+.taken-pictures-section,
+.selected-sticker-controls,
+.mobile-sticker-toolbar {
+  transition: background-color 0.35s ease, 
+              color 0.35s ease, 
+              border-color 0.35s ease, 
+              box-shadow 0.35s ease;
 }
 
 /* Photobooth Main Layout */
