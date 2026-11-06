@@ -575,17 +575,31 @@ body,
   border: 3px solid var(--accent-container);
 }
 
-/* Floating Camera Flip Button */
-.btn-flip-camera {
+.camera-top-controls {
   position: absolute;
   top: 14px;
+  left: 14px;
   right: 14px;
   z-index: 15;
-  width: 42px;
-  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.camera-top-controls > * {
+  pointer-events: auto;
+}
+
+.btn-flip-camera {
+  position: static;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
   border-radius: 50%;
   background: rgba(35, 24, 21, 0.65);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
   color: #FFFFFF;
   border: 1px solid rgba(255, 255, 255, 0.25);
   display: flex;
@@ -603,6 +617,68 @@ body,
 
 .btn-flip-camera:active {
   transform: scale(0.95) rotate(180deg);
+}
+
+/* Styled Camera Select Dropdown */
+.camera-select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: calc(100% - 50px);
+}
+
+.camera-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: rgba(35, 24, 21, 0.65);
+  backdrop-filter: blur(6px);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 8px 30px 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  outline: none;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 220px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.camera-select:hover,
+.camera-select:focus {
+  background: rgba(35, 24, 21, 0.85);
+  border-color: var(--btn-bg, #F3A96E);
+}
+
+.camera-select option {
+  background-color: #231815;
+  color: #F8E9DA;
+  padding: 6px;
+}
+
+.select-chevron {
+  position: absolute;
+  right: 12px;
+  pointer-events: none;
+  color: #FFFFFF;
+  opacity: 0.8;
+}
+
+
+[data-theme="dark"] .camera-select {
+  background: rgba(42, 31, 27, 0.75);
+  border-color: rgba(224, 149, 89, 0.35);
+  color: #F5E6D8;
+}
+
+[data-theme="dark"] .camera-select option {
+  background-color: #2A1F1B;
+  color: #F5E6D8;
 }
 
 /* Mirror video */

@@ -6,6 +6,7 @@ const state = {
   capturedPhotos: [],
   stream: null,
   facingMode: "user",
+  selectedDeviceId: null,
   isCountingDown: false,
   activeRetakeIndex: null,
   design: {
@@ -39,6 +40,7 @@ const cameraFlash = document.getElementById("camera-flash");
 const countdownOverlay = document.getElementById("countdown-overlay");
 const countdownText = document.getElementById("countdown-text");
 const cameraStatus = document.getElementById("camera-status");
+const cameraSelect = document.getElementById("camera-select");
 const thumbnailsTray = document.getElementById("thumbnails-tray");
 
 const btnTakePicture = document.getElementById("btn-take-picture");
@@ -229,41 +231,80 @@ function goToStage(stageNumber) {
 }
 
 /* Stage 2: Camera Feed & Capture */
+
+async function populateCameraList() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices || !cameraSelect) return;
+
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const videoDevices = devices.filter((d) => d.kind === "videoinput");
+
+    if (videoDevices.length === 0) return;
+
+    cameraSelect.innerHTML = "";
+
+    videoDevices.forEach((device, index) => {
+      const option = document.createElement("option");
+      option.value = device.deviceId;
+      option.textContent = device.label || `Camera ${index + 1}`;
+
+      if (state.selectedDeviceId === device.deviceId) {
+        option.selected = true;
+      }
+      cameraSelect.appendChild(option);
+    });
+
+    if (!state.selectedDeviceId && state.stream) {
+      const activeTrack = state.stream.getVideoTracks()[0];
+      if (activeTrack) {
+        const settings = activeTrack.getSettings();
+        if (settings.deviceId) {
+          state.selectedDeviceId = settings.deviceId;
+          cameraSelect.value = settings.deviceId;
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Could not enumerate camera devices:", err);
+  }
+}
+
 async function startCamera() {
   const statusElement = document.getElementById("camera-status");
   const video = document.getElementById("webcam-feed");
 
   if (statusElement) statusElement.classList.remove("active");
 
-  // Keep: Essential check for secure context and browser capability
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    console.error("Camera API not supported or context is insecure.");
     if (statusElement) {
-      statusElement.innerHTML = "<p>Camera access requires a secure connection (HTTPS) or permission.</p>";
+      statusElement.innerHTML = "<p>Camera requires a secure connection (HTTPS) or permission.</p>";
       statusElement.classList.add("active");
     }
     return;
   }
 
-  if (state.facingMode === "user") {
-    video.classList.add("mirrored");
-  } else {
-    video.classList.remove("mirrored");
-  }
-
   if (state.stream) {
     state.stream.getTracks().forEach((track) => track.stop());
+    state.stream = null;
+  }
+  if (video) {
+    video.srcObject = null;
   }
 
-  const constraints = {
-    video: {
-      facingMode: state.facingMode ? { ideal: state.facingMode } : "user"
-    },
-    audio: false
-  };
+  await new Promise((res) => setTimeout(res, 80));
+
+  let videoConstraints = {};
+  if (state.selectedDeviceId) {
+    videoConstraints = { deviceId: { exact: state.selectedDeviceId } };
+  } else {
+    videoConstraints = { facingMode: state.facingMode };
+  }
 
   try {
-    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: videoConstraints,
+      audio: false
+    });
 
     state.stream = stream;
     video.srcObject = stream;
@@ -273,15 +314,52 @@ async function startCamera() {
 
     await video.play();
 
+    const activeTrack = stream.getVideoTracks()[0];
+    const settings = activeTrack ? activeTrack.getSettings() : {};
+    const isUserFacing = settings.facingMode === "user" || 
+                         (activeTrack && activeTrack.label.toLowerCase().includes("front")) || 
+                         state.facingMode === "user";
+
+    if (isUserFacing) {
+      video.classList.add("mirrored");
+    } else {
+      video.classList.remove("mirrored");
+    }
+
+    await populateCameraList();
+
     if (statusElement) statusElement.classList.remove("active");
   } catch (err) {
-    console.error("Camera access error:", err);
+    console.warn("Requested camera constraints failed:", err);
     if (statusElement) {
-      statusElement.innerHTML = `<p>${err.name === "NotAllowedError" ? "Camera permission denied. Please allow access in browser settings." : "Unable to access camera: " + err.message}</p>`;
+      statusElement.innerHTML = `<p>Unable to connect to selected camera: ${err.message}</p>`;
       statusElement.classList.add("active");
     }
   }
 }
+
+// User selects a specific camera from the dropdown
+if (cameraSelect) {
+  cameraSelect.addEventListener("change", async (e) => {
+    state.selectedDeviceId = e.target.value;
+    await startCamera();
+  });
+}
+
+let isFlipping = false;
+if (btnFlipCamera) {
+  btnFlipCamera.addEventListener("click", async () => {
+    if (isFlipping) return;
+    isFlipping = true;
+
+    state.selectedDeviceId = null;
+    state.facingMode = state.facingMode === "user" ? "environment" : "user";
+
+    await startCamera();
+    isFlipping = false;
+  });
+}
+
 
 function stopCamera() {
   if (state.stream) {
@@ -1364,7 +1442,7 @@ initStickerPicker();
 
 // Todo:
 // Add Cropping/ Adjusting frame when uploading pictures
+// Bug when taking a picture(sound still plays)
 // Add rotations(Middle Rotation) and Expansion(Pull corner) on stickers
-// Add Dark Mode 
 // The ability to choose camera
 // Customizable Countdown

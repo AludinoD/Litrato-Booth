@@ -238,28 +238,52 @@
             <video id="webcam-feed" autoplay playsinline muted></video>
             <div class="camera-flash" id="camera-flash"></div>
 
-            <button
-              type="button"
-              class="btn-flip-camera"
-              id="btn-flip-camera"
-              title="Switch Camera"
-              aria-label="Switch Camera"
-            >
-              <svg
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+            <div class="camera-top-controls">
+              <!-- Camera Device Picker Dropdown -->
+              <div class="camera-select-wrapper" id="camera-select-wrapper">
+                <select
+                  id="camera-select"
+                  class="camera-select"
+                  aria-label="Select Camera"
+                >
+                  <option value="" disabled selected>Loading cameras...</option>
+                </select>
+                <svg
+                  class="select-chevron"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+
+              <button
+                type="button"
+                class="btn-flip-camera"
+                id="btn-flip-camera"
+                title="Quick Flip Camera"
+                aria-label="Quick Flip Camera"
               >
-                <path
-                  d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"
-                />
-              </svg>
-            </button>
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"
+                  />
+                </svg>
+              </button>
+            </div>
 
             <div
               class="countdown-overlay"
