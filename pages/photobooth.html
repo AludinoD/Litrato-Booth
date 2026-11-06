@@ -299,6 +299,54 @@
           </div>
 
           <div class="capture-controls">
+            <div class="timer-control-group">
+              <span class="timer-label">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span>Timer (sec)</span>
+              </span>
+              <div class="timer-stepper">
+                <button
+                  type="button"
+                  class="btn-timer-step"
+                  id="btn-timer-minus"
+                  title="Decrease timer"
+                  aria-label="Decrease timer"
+                >
+                  −
+                </button>
+                <input
+                  type="number"
+                  id="timer-seconds-input"
+                  class="timer-number-input"
+                  min="1"
+                  max="30"
+                  value="5"
+                  aria-label="Countdown duration in seconds"
+                />
+                <button
+                  type="button"
+                  class="btn-timer-step"
+                  id="btn-timer-plus"
+                  title="Increase timer"
+                  aria-label="Increase timer"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
             <!-- Take Picture Button -->
             <button type="button" id="btn-take-picture" class="btn-primary">
               <span class="btn-text">Take Picture</span>

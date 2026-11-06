@@ -7,6 +7,7 @@ const state = {
   stream: null,
   facingMode: "user",
   selectedDeviceId: null,
+  countdownDuration: 5,
   isCountingDown: false,
   activeRetakeIndex: null,
   design: {
@@ -39,6 +40,10 @@ const videoElement = document.getElementById("webcam-feed");
 const cameraFlash = document.getElementById("camera-flash");
 const countdownOverlay = document.getElementById("countdown-overlay");
 const countdownText = document.getElementById("countdown-text");
+const timerSecondsInput = document.getElementById("timer-seconds-input");
+const timerOptionButtons = document.querySelectorAll(".btn-timer-option");
+const btnTimerMinus = document.getElementById("btn-timer-minus");
+const btnTimerPlus = document.getElementById("btn-timer-plus");
 const cameraStatus = document.getElementById("camera-status");
 const cameraSelect = document.getElementById("camera-select");
 const thumbnailsTray = document.getElementById("thumbnails-tray");
@@ -476,6 +481,22 @@ function attachSlotActionListeners() {
 let skipCountdownResolve = null;
 let isCapturingProcess = false;
 
+timerOptionButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    if (isCapturingProcess || state.isCountingDown) return;
+
+    timerOptionButtons.forEach((b) => {
+      b.classList.remove("active");
+      b.setAttribute("aria-checked", "false");
+    });
+
+    btn.classList.add("active");
+    btn.setAttribute("aria-checked", "true");
+
+    state.countdownDuration = parseInt(btn.dataset.seconds, 10);
+  });
+});
+
 function runCountdown(seconds = 5) {
   return new Promise((resolve) => {
     state.isCountingDown = true;
@@ -506,6 +527,32 @@ function runCountdown(seconds = 5) {
     skipCountdownResolve = finish;
   });
 }
+
+function setCountdownDuration(val) {
+  if (isCapturingProcess || state.isCountingDown) return;
+
+  let seconds = parseInt(val, 10);
+  if (isNaN(seconds) || seconds < 1) seconds = 1;
+  if (seconds > 30) seconds = 30; // Max reasonable timer
+
+  state.countdownDuration = seconds;
+  if (timerSecondsInput) timerSecondsInput.value = seconds;
+}
+
+// Direct numeric input by typing
+timerSecondsInput?.addEventListener("change", (e) => {
+  setCountdownDuration(e.target.value);
+});
+
+// [-] button
+btnTimerMinus?.addEventListener("click", () => {
+  setCountdownDuration((state.countdownDuration || 5) - 1);
+});
+
+// [+] button
+btnTimerPlus?.addEventListener("click", () => {
+  setCountdownDuration((state.countdownDuration || 5) + 1);
+});
 
 function snapFrame() {
   playShutterSound();
@@ -646,22 +693,22 @@ btnTakePicture.addEventListener("click", async () => {
   setCaptureButtonState(true);
 
   try {
-    for (let i = startIndex; i < state.photoCount; i++) {
-      if (i >= state.photoCount) break;
+      for (let i = startIndex; i < state.photoCount; i++) {
+        if (i >= state.photoCount) break;
 
-      await runCountdown(5);
-      const photoData = snapFrame();
-      placePhotoInSlot(i, photoData);
+        // Use dynamic duration from state
+        await runCountdown(state.countdownDuration);
+        const photoData = snapFrame();
+        placePhotoInSlot(i, photoData);
 
-      // Brief breather between slots
-      if (i < state.photoCount - 1) {
-        await new Promise((res) => setTimeout(res, 600));
+        if (i < state.photoCount - 1) {
+          await new Promise((res) => setTimeout(res, 600));
+        }
       }
+    } finally {
+      isCapturingProcess = false;
+      setCaptureButtonState(false);
     }
-  } finally {
-    isCapturingProcess = false;
-    setCaptureButtonState(false);
-  }
 });
 
 if (btnFlipCamera) {
@@ -709,7 +756,7 @@ async function retakeSpecificSlot(index) {
   setCaptureButtonState(true);
 
   try {
-    await runCountdown(5);
+    await runCountdown(state.countdownDuration);
     const photoData = snapFrame();
     placePhotoInSlot(index, photoData);
   } finally {
@@ -1444,5 +1491,4 @@ initStickerPicker();
 // Add Cropping/ Adjusting frame when uploading pictures
 // Bug when taking a picture(sound still plays)
 // Add rotations(Middle Rotation) and Expansion(Pull corner) on stickers
-// The ability to choose camera
 // Customizable Countdown
