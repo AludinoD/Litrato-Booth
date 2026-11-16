@@ -933,8 +933,8 @@ if (state.design.stickers && state.design.stickers.length > 0) {
 
       if (index === selectedStickerIndex) {
         ctx.strokeStyle = "rgba(184, 125, 75, 0.95)";
-        ctx.lineWidth = 4;
-        ctx.setLineDash([]);
+        ctx.lineWidth = 3;
+        ctx.setLineDash([8, 6]);
         ctx.strokeRect(
           -sticker.width / 2,
           -sticker.height / 2,
@@ -942,9 +942,31 @@ if (state.design.stickers && state.design.stickers.length > 0) {
           sticker.height
         );
 
+        const rotHandleDist = 36;
+        const rotY = -sticker.height / 2 - rotHandleDist;
 
-        const dotRadius = 8;
-        ctx.fillStyle = "#FFFFFF";
+        ctx.beginPath();
+        ctx.moveTo(0, -sticker.height / 2);
+        ctx.lineTo(0, rotY);
+        ctx.stroke();
+
+        ctx.setLineDash([]);
+
+        const handleRadius = 11;
+        ctx.fillStyle = "#B87D4B";
+        ctx.strokeStyle = "#FFFFFF";
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(0, rotY, handleRadius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.strokeStyle = "#FFFFFF";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, rotY, 5, 0.2 * Math.PI, 1.6 * Math.PI);
+        ctx.stroke();
+
         const corners = [
           [-sticker.width / 2, -sticker.height / 2],
           [sticker.width / 2, -sticker.height / 2],
@@ -952,9 +974,13 @@ if (state.design.stickers && state.design.stickers.length > 0) {
           [-sticker.width / 2, sticker.height / 2]
         ];
 
-        corners.forEach(([x, y]) => {
+        ctx.fillStyle = "#FFFFFF";
+        ctx.strokeStyle = "#B87D4B";
+        ctx.lineWidth = 3;
+
+        corners.forEach(([cxPos, cyPos]) => {
           ctx.beginPath();
-          ctx.arc(x, y, dotRadius, 0, Math.PI * 2);
+          ctx.arc(cxPos, cyPos, 9, 0, Math.PI * 2);
           ctx.fill();
           ctx.stroke();
         });
@@ -1298,22 +1324,51 @@ stickerFileInput?.addEventListener("change", (e) => {
 });
 
 
-function isPointInSticker(px, py, s) {
+function toStickerLocal(px, py, s) {
   const cx = s.x + s.width / 2;
   const cy = s.y + s.height / 2;
   const rad = (-s.rotation * Math.PI) / 180;
-
   const dx = px - cx;
   const dy = py - cy;
-  const localX = dx * Math.cos(rad) - dy * Math.sin(rad);
-  const localY = dx * Math.sin(rad) + dy * Math.cos(rad);
 
-  return (
-    localX >= -s.width / 2 &&
-    localX <= s.width / 2 &&
-    localY >= -s.height / 2 &&
-    localY <= s.height / 2
-  );
+  return {
+    x: dx * Math.cos(rad) - dy * Math.sin(rad),
+    y: dx * Math.sin(rad) + dy * Math.cos(rad)
+  };
+}
+
+function getStickerHitAction(px, py, s, isSelected) {
+  const local = toStickerLocal(px, py, s);
+  const hw = s.width / 2;
+  const hh = s.height / 2;
+
+  if (isSelected) {
+    const hitRadius = 24;
+
+    const rotY = -hh - 36;
+    if (Math.hypot(local.x - 0, local.y - rotY) <= hitRadius) {
+      return "rotate";
+    }
+
+
+    const corners = [
+      [-hw, -hh],
+      [hw, -hh],
+      [hw, hh],
+      [-hw, hh]
+    ];
+    for (const [cx, cy] of corners) {
+      if (Math.hypot(local.x - cx, local.y - cy) <= hitRadius) {
+        return "scale";
+      }
+    }
+  }
+
+  if (local.x >= -hw && local.x <= hw && local.y >= -hh && local.y <= hh) {
+    return "move";
+  }
+
+  return null;
 }
 
 function getCanvasPointerPos(e) {
@@ -1330,9 +1385,12 @@ function getCanvasPointerPos(e) {
   };
 }
 
+let activeTransformMode = null;
 let draggedStickerIndex = null;
 let dragOffsetX = 0;
 let dragOffsetY = 0;
+
+let transformStartDist = 0;
 let initialTouchDistance = null;
 let initialTouchAngle = null;
 let initialWidth = 0;
@@ -1347,27 +1405,99 @@ function getTouchesAngle(t1, t2) {
   return Math.atan2(t2.clientY - t1.clientY, t2.clientX - t1.clientX) * (180 / Math.PI);
 }
 
+function syncSlidersWithSticker(s) {
+  if (sizeSlider) sizeSlider.value = Math.round(s.width);
+  if (sizePxVal) sizePxVal.textContent = `${Math.round(s.width)}px`;
+  if (rotateSlider) rotateSlider.value = s.rotation;
+  if (rotateDegreesVal) rotateDegreesVal.textContent = `${s.rotation}°`;
+}
+
+function handlePointerDown(pos) {
+  if (selectedStickerIndex !== null && state.design.stickers[selectedStickerIndex]) {
+    const sel = state.design.stickers[selectedStickerIndex];
+    const action = getStickerHitAction(pos.x, pos.y, sel, true);
+
+    if (action === "rotate" || action === "scale") {
+      draggedStickerIndex = selectedStickerIndex;
+      activeTransformMode = action;
+
+      const cx = sel.x + sel.width / 2;
+      const cy = sel.y + sel.height / 2;
+      transformStartDist = Math.hypot(pos.x - cx, pos.y - cy) || 1;
+      initialWidth = sel.width;
+      initialHeight = sel.height;
+      return true;
+    }
+  }
+
+
+  for (let i = state.design.stickers.length - 1; i >= 0; i--) {
+    const s = state.design.stickers[i];
+    const action = getStickerHitAction(pos.x, pos.y, s, i === selectedStickerIndex);
+
+    if (action) {
+      draggedStickerIndex = i;
+      activeTransformMode = "move";
+      dragOffsetX = pos.x - s.x;
+      dragOffsetY = pos.y - s.y;
+      selectSticker(i);
+      renderFrame();
+      return true;
+    }
+  }
+
+  selectSticker(null);
+  renderFrame();
+  return false;
+}
+
+function handlePointerMove(pos) {
+  if (draggedStickerIndex === null || !activeTransformMode) return;
+  const s = state.design.stickers[draggedStickerIndex];
+  if (!s) return;
+
+  if (activeTransformMode === "move") {
+    s.x = pos.x - dragOffsetX;
+    s.y = pos.y - dragOffsetY;
+  } else if (activeTransformMode === "scale") {
+    const cx = s.x + s.width / 2;
+    const cy = s.y + s.height / 2;
+    const curDist = Math.hypot(pos.x - cx, pos.y - cy);
+    const scaleFactor = curDist / transformStartDist;
+
+    const aspect = initialHeight / initialWidth;
+    const newW = Math.max(40, Math.min(420, initialWidth * scaleFactor));
+    const newH = newW * aspect;
+
+    s.width = newW;
+    s.height = newH;
+    s.x = cx - newW / 2;
+    s.y = cy - newH / 2;
+    syncSlidersWithSticker(s);
+  } else if (activeTransformMode === "rotate") {
+    const cx = s.x + s.width / 2;
+    const cy = s.y + s.height / 2;
+
+    const angleRad = Math.atan2(pos.y - cy, pos.x - cx);
+    let deg = Math.round((angleRad * 180) / Math.PI + 90);
+
+    while (deg > 180) deg -= 360;
+    while (deg < -180) deg += 360;
+
+    s.rotation = deg;
+    syncSlidersWithSticker(s);
+  }
+
+  renderFrame();
+}
+
 if (canvas) {
   // Mobile Touch Gestures
   canvas.addEventListener("touchstart", (e) => {
     if (e.touches.length === 1) {
       const pos = getCanvasPointerPos(e);
-      let hit = false;
-      for (let i = state.design.stickers.length - 1; i >= 0; i--) {
-        const s = state.design.stickers[i];
-        if (isPointInSticker(pos.x, pos.y, s)) {
-          draggedStickerIndex = i;
-          dragOffsetX = pos.x - s.x;
-          dragOffsetY = pos.y - s.y;
-          selectSticker(i);
-          hit = true;
-          renderFrame();
-          break;
-        }
-      }
-      if (!hit) {
-        selectSticker(null);
-        renderFrame();
+      if (handlePointerDown(pos)) {
+        e.preventDefault();
       }
     } else if (e.touches.length === 2 && selectedStickerIndex !== null) {
       const s = state.design.stickers[selectedStickerIndex];
@@ -1383,24 +1513,26 @@ if (canvas) {
   canvas.addEventListener("touchmove", (e) => {
     if (e.touches.length === 1 && draggedStickerIndex !== null) {
       const pos = getCanvasPointerPos(e);
-      const s = state.design.stickers[draggedStickerIndex];
-      s.x = pos.x - dragOffsetX;
-      s.y = pos.y - dragOffsetY;
-      renderFrame();
+      handlePointerMove(pos);
       e.preventDefault();
     } else if (e.touches.length === 2 && selectedStickerIndex !== null) {
       const s = state.design.stickers[selectedStickerIndex];
       const curDist = getTouchesDist(e.touches[0], e.touches[1]);
       const curAngle = getTouchesAngle(e.touches[0], e.touches[1]);
 
-      // Pinch Scale
+      const cx = s.x + s.width / 2;
+      const cy = s.y + s.height / 2;
+
       const scaleFactor = curDist / (initialTouchDistance || 1);
       const aspect = initialHeight / initialWidth;
-      const targetW = Math.max(50, Math.min(420, initialWidth * scaleFactor));
-      s.width = targetW;
-      s.height = targetW * aspect;
+      const targetW = Math.max(40, Math.min(420, initialWidth * scaleFactor));
+      const targetH = targetW * aspect;
 
-      // Twist Rotate
+      s.width = targetW;
+      s.height = targetH;
+      s.x = cx - targetW / 2;
+      s.y = cy - targetH / 2;
+
       const angleDiff = curAngle - initialTouchAngle;
       let finalAngle = Math.round(initialRotation + angleDiff);
       while (finalAngle > 180) finalAngle -= 360;
@@ -1414,45 +1546,41 @@ if (canvas) {
 
   canvas.addEventListener("touchend", () => {
     draggedStickerIndex = null;
+    activeTransformMode = null;
     initialTouchDistance = null;
     initialTouchAngle = null;
   });
 
-  // Desktop Mouse Gestures
+  // Desktop Mouse Gestures & Hover Cursors
   canvas.addEventListener("mousedown", (e) => {
     const pos = getCanvasPointerPos(e);
-    let hit = false;
-    for (let i = state.design.stickers.length - 1; i >= 0; i--) {
-      const s = state.design.stickers[i];
-      if (isPointInSticker(pos.x, pos.y, s)) {
-        draggedStickerIndex = i;
-        dragOffsetX = pos.x - s.x;
-        dragOffsetY = pos.y - s.y;
-        selectSticker(i);
-        canvas.classList.add("dragging");
-        hit = true;
-        renderFrame();
-        e.preventDefault();
-        break;
-      }
-    }
-    if (!hit) {
-      selectSticker(null);
-      renderFrame();
+    if (handlePointerDown(pos)) {
+      if (activeTransformMode === "move") canvas.classList.add("dragging");
+      e.preventDefault();
     }
   });
 
   window.addEventListener("mousemove", (e) => {
-    if (draggedStickerIndex === null) return;
     const pos = getCanvasPointerPos(e);
-    const s = state.design.stickers[draggedStickerIndex];
-    s.x = pos.x - dragOffsetX;
-    s.y = pos.y - dragOffsetY;
-    renderFrame();
+
+    if (draggedStickerIndex !== null) {
+      handlePointerMove(pos);
+      return;
+    }
+
+    // Dynamic hover cursor feedback on desktop
+    if (selectedStickerIndex !== null && state.design.stickers[selectedStickerIndex]) {
+      const sel = state.design.stickers[selectedStickerIndex];
+      const hoverAction = getStickerHitAction(pos.x, pos.y, sel, true);
+      canvas.classList.remove("cursor-scale", "cursor-rotate");
+      if (hoverAction === "scale") canvas.classList.add("cursor-scale");
+      else if (hoverAction === "rotate") canvas.classList.add("cursor-rotate");
+    }
   });
 
   window.addEventListener("mouseup", () => {
     draggedStickerIndex = null;
+    activeTransformMode = null;
     canvas.classList.remove("dragging");
   });
 }
@@ -1490,5 +1618,3 @@ initStickerPicker();
 // Todo:
 // Add Cropping/ Adjusting frame when uploading pictures
 // Bug when taking a picture(sound still plays)
-// Add rotations(Middle Rotation) and Expansion(Pull corner) on stickers
-// Customizable Countdown
