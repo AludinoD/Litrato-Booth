@@ -1543,6 +1543,19 @@ body,
   transition: transform 0.15s ease, background-color 0.15s ease;
 }
 
+
+.sticker-slider-row input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  height: 6px;
+  background: #B87D4B;
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
 .sticker-slider-row input[type="range"]::-webkit-slider-thumb:hover {
   transform: scale(1.15);
   background: var(--btn-hover, #e6985a);
